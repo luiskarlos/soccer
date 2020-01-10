@@ -1,0 +1,42 @@
+penalty 
+{
+	spot red.penalty 100,100, 5,5
+	spot red.goal 150,100, 5,5
+	
+	blue {	
+		spawn blue.player1 entrance
+		onExit
+			walk blue.player1 to red.penalty
+			onExit
+			{			
+				PrepareToShoot blue.player1
+				ListenForMessage blue.player1 shoot
+				onExit				
+					ShootPenalty blue.player1			
+			}
+	}
+
+	red {	
+		spawn red.goalkeeper entrance
+		onExit
+			walk red.goalkeeper to red.goal
+			onExit 
+			{		
+				PrepareToCatch red.goalkeeper
+				ListenForMessage red.goalkeeper shoot
+				onExit
+					CatchPenalty red.goalkeeper			
+			} 
+	}
+			
+	spawn ball red.penalty	
+	
+	execPenalty 
+	{
+		isListenForMessage red.goalkeeper shoot
+		onExit
+			isListenForMessage blue.player1 shoot
+			onExit
+				sendGlobalMessage shoot
+	}
+}

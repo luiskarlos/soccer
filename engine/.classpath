@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="G:/work/soccer/libs/cglib-nodep-2.2.2.jar"/>
+	<classpathentry kind="lib" path="G:/work/soccer/libs/hamcrest-all-1.3.jar"/>
+	<classpathentry kind="lib" path="G:/work/soccer/libs/javassist-3.18.1-GA.jar"/>
+	<classpathentry kind="lib" path="G:/work/soccer/libs/junit-4.11.jar"/>
+	<classpathentry kind="lib" path="G:/work/soccer/libs/mockito-all-1.9.5.jar"/>
+	<classpathentry kind="lib" path="G:/work/soccer/libs/objenesis-2.1.jar"/>
+	<classpathentry kind="lib" path="G:/work/soccer/libs/powermock-mockito-1.5.4-full.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
