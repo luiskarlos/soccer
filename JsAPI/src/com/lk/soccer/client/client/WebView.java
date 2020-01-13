@@ -45,9 +45,9 @@ public class WebView implements EntryPoint {
 	@Override
 	public void onModuleLoad() {
 		GWT.setUncaughtExceptionHandler(e -> logger.log(Level.SEVERE, e.getMessage(), e));
-	
+
 		game.setListener(jsListener);
-		
+
 		//loadScript(0, "phaser.js", "game.js");
 
 		registerEngine();
@@ -55,7 +55,7 @@ public class WebView implements EntryPoint {
 
     game.start();
 	}
-	
+
 	private void loadScript(final int pos, final String ... lib) {
 		ScriptInjector.fromUrl("/js/"+lib[pos]).setCallback(
 		  new Callback<Void, Exception>() {
@@ -70,7 +70,7 @@ public class WebView implements EntryPoint {
 	      }
 		}).inject();
 	}
-	
+
 	public void click(int posx, int posy) {
 		logger.log(Level.SEVERE, "Click " + posx + " " + posy);
 		game.eval(new CoachPassMessage("red", posx, posy));
@@ -81,32 +81,38 @@ public class WebView implements EntryPoint {
 
 	  return game.actions();
   }
-	
+
 	public native void registerEngine() /*-{
 		var that = this;
 		$wnd.actions = that.@com.lk.soccer.client.client.WebView::actions()();
-    $wnd.gameSpawnPlayers($wnd.actions);
+        $wnd.gameSpawnPlayers($wnd.actions);
 		$wnd.engine = $wnd.engine || {};
-  	$wnd.engine.update = $entry(function() {
-    	that.@com.lk.soccer.client.client.WebView::update()();
-    });
-    
-  	$wnd.engine.click = $entry(function(x, y) {
-    	that.@com.lk.soccer.client.client.WebView::click(II)(x, y);
-    });
+  	    $wnd.engine.update = $entry(function() {
+    	    that.@com.lk.soccer.client.client.WebView::update()();
+        });
+
+  	    $wnd.engine.click = $entry(function(x, y) {
+    	    that.@com.lk.soccer.client.client.WebView::click(II)(x, y);
+        });
+        s
  	}-*/;
 
 	private native void onUpdate(String entity, double x, double y, double angle, double speed)/*-{
 	  $wnd.engine.updatePosition(entity, x, y, angle, speed);
-	}-*/;	
-	
+	}-*/;
+
 	public void update() {
 		game.update();
 		for (Entry<String, MovingEntity<?>> set : entities.entrySet()) {
-	    onUpdate(set.getKey(), set.getValue().pos().x(), set.getValue().pos().y(), angle(set.getValue()), set.getValue().speed());
-    }
+	        onUpdate(set.getKey(),
+					set.getValue().pos().x(),
+					set.getValue().pos().y(),
+					angle(set.getValue()),
+					set.getValue().speed()
+			);
+        }
 	}
-	
+
 	private final Vector2D imageDirection = new Vector2D(0, -1);
 	private double angle(MovingEntity<?> entity) {
 		double headingAngle = Math.acos(-entity.heading().y());
@@ -129,7 +135,7 @@ public class WebView implements EntryPoint {
 
 		@Override
 		public void onCreated(Ball ball) {
-			entities.put("ball", ball);			
+			entities.put("ball", ball);
 		}
 
 		@Override
@@ -151,7 +157,7 @@ public class WebView implements EntryPoint {
 			entities.put(player.getName(), player);
 		}
 	};
-	
+
 	GameBuilderListener jsListener = new GameBuilderListener() {
 		@Override
 		public void onCreated(PlayRegions playRegions) {
@@ -170,8 +176,8 @@ public class WebView implements EntryPoint {
 
 		private native void jsAddBall(double x, double y, double angle)/*-{
       $wnd.engine.addBall(x, y, angle);
-    }-*/;	
-		
+    }-*/;
+
 		@Override
 		public void onCreated(FieldPlayer player) {
 			entities.put(player.getName(), player);
@@ -180,7 +186,7 @@ public class WebView implements EntryPoint {
 
 		private native void jsAddPlayer(String team, String entity, double x, double y, double angle)/*-{
       $wnd.engine.addPlayer(team, entity, x, y, angle);
-    }-*/;	
+    }-*/;
 
 		@Override
 		public void onCreated(Goalkeeper player) {
@@ -191,22 +197,22 @@ public class WebView implements EntryPoint {
 		private native void jsAddGoalkeeper(String team, String entity, double x, double y, double angle)/*-{
       $wnd.engine.addGoalkeeper(team, entity, x, y, angle);
     }-*/;
-		
+
 		@Override
 		public void onCreated(Team soccerTeam) {
 		}
 	};
-	
+
 	private void addConsole() {
     // Let's make an 80x50 text area to go along with the other two.
     final TextArea ta = TextArea.wrap(Document.get().getElementById("console"));
-    addButton("eval", new ClickHandler() {			
+    addButton("eval", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				game.eval(ta.getText());
 			}
 		});
-    
+
     addButton("fsm", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -221,9 +227,9 @@ public class WebView implements EntryPoint {
 			}
 		});
 	}
-	
+
 	private void addButton(String name, ClickHandler handler) {
-    Button btn = Button.wrap(Document.get().getElementById(name));    
-    btn.addClickHandler(handler);		
+        Button btn = Button.wrap(Document.get().getElementById(name));
+        btn.addClickHandler(handler);
 	}
 }
