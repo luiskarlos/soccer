@@ -24,9 +24,9 @@ public class Geometry {
 	 * given a plane and a ray this function determines how far along the ray an
 	 * intersection occurs. Returns negative if the ray is parallel
 	 */
-	public static double DistanceToRayPlaneIntersection(final Vector2D rayOrigin, final Vector2D rayHeading,
-	    final Vector2D planePoint, // any point on the plane
-	    final Vector2D planeNormal) {
+	public static double DistanceToRayPlaneIntersection(final UVector2D rayOrigin, final UVector2D rayHeading,
+	    final UVector2D planePoint, // any point on the plane
+	    final UVector2D planeNormal) {
 
 		final double d = -planeNormal.dot(planePoint);
 		final double numer = planeNormal.dot(rayOrigin) + d;
@@ -46,11 +46,9 @@ public class Geometry {
 		PLANE_BACK_SIDE, PLANE_FRONT, ON_PLANE;
 	}
 
-	public static SpanType whereIsPoint(final Vector2D point, final Vector2D pointOnPlane, // any
-																																												 // on
-																																												 // the
-																																												 // plane
-	    final Vector2D planeNormal) {
+	public static SpanType whereIsPoint(final UVector2D point, final UVector2D pointOnPlane, 
+			// any on the plane
+	    final UVector2D planeNormal) {
 		final Vector2D dir = sub(pointOnPlane, point);
 		final double d = dir.dot(planeNormal);
 
@@ -85,8 +83,8 @@ public class Geometry {
 	/**
 	 * DoRayCircleIntersect
 	 */
-	public static boolean doRayCircleIntersect(final Vector2D rayOrigin, final Vector2D rayHeading,
-	    final Vector2D circleOrigin, final double radius) {
+	public static boolean doRayCircleIntersect(final UVector2D rayOrigin, final UVector2D rayHeading,
+	    final UVector2D circleOrigin, final double radius) {
 		final Vector2D toCircle = sub(circleOrigin, rayOrigin);
 		final double length = toCircle.length();
 		final double v = toCircle.dot(rayHeading);
@@ -103,7 +101,7 @@ public class Geometry {
 	 * 
 	 * Thanks to Dave Eberly for this one.
 	 */
-	public static boolean getTangentPoints(final Vector2D C, final double R, final Vector2D P, final Vector2D T1,
+	public static boolean getTangentPoints(final UVector2D C, final double R, final UVector2D P, final Vector2D T1,
 	    final Vector2D T2) {
 		final Vector2D PmC = sub(P, C);
 		final double sqrLen = PmC.lengthSq();
@@ -116,10 +114,10 @@ public class Geometry {
 		final double invSqrLen = 1 / sqrLen;
 		final double root = Math.sqrt(Math.abs(sqrLen - rSqr));
 
-		T1.x = C.x + R * (R * PmC.x - PmC.y * root) * invSqrLen;
-		T1.y = C.y + R * (R * PmC.y + PmC.x * root) * invSqrLen;
-		T2.x = C.x + R * (R * PmC.x + PmC.y * root) * invSqrLen;
-		T2.y = C.y + R * (R * PmC.y - PmC.x * root) * invSqrLen;
+		T1.x = C.x() + R * (R * PmC.x - PmC.y * root) * invSqrLen;
+		T1.y = C.y() + R * (R * PmC.y + PmC.x * root) * invSqrLen;
+		T2.x = C.x() + R * (R * PmC.x + PmC.y * root) * invSqrLen;
+		T2.y = C.y() + R * (R * PmC.y - PmC.x * root) * invSqrLen;
 
 		return true;
 	}
@@ -185,17 +183,17 @@ public class Geometry {
 	 * Given 2 lines in 2D space AB, CD this returns true if an intersection
 	 * occurs.
 	 */
-	public static boolean lineIntersection2D(final Vector2D A, final Vector2D B, final Vector2D C, final Vector2D D) {
-		final double Bot = (B.x - A.x) * (D.y - C.y) - (B.y - A.y) * (D.x - C.x);
-		if (Bot == 0)// parallel
+	public static boolean lineIntersection2D(final UVector2D A, final UVector2D B, final UVector2D C, final UVector2D D) {
+		final double bot = (B.x() - A.x()) * (D.y() - C.y()) - (B.y() - A.y()) * (D.x() - C.x());
+		if (bot == 0)// parallel
 		{
 			return false;
 		}
 
-		final double rTop = (A.y - C.y) * (D.x - C.x) - (A.x - C.x) * (D.y - C.y);
-		final double sTop = (A.y - C.y) * (B.x - A.x) - (A.x - C.x) * (B.y - A.y);
+		final double rTop = (A.y() - C.y()) * (D.x() - C.x()) - (A.x() - C.x()) * (D.y() - C.y());
+		final double sTop = (A.y() - C.y()) * (B.x() - A.x()) - (A.x() - C.x()) * (B.y() - A.y());
 
-		final double invBot = 1.0 / Bot;
+		final double invBot = 1.0 / bot;
 		final double r = rTop * invBot;
 		final double s = sTop * invBot;
 
@@ -315,8 +313,8 @@ public class Geometry {
 	/**
 	 * Returns true if the two circles overlap
 	 */
-	public static boolean twoCirclesOverlapped(final Vector2D c1, final double r1, final Vector2D c2, final double r2) {
-		final double DistBetweenCenters = Math.sqrt((c1.x - c2.x) * (c1.x - c2.x) + (c1.y - c2.y) * (c1.y - c2.y));
+	public static boolean twoCirclesOverlapped(final UVector2D c1, final double r1, final UVector2D c2, final double r2) {
+		final double DistBetweenCenters = Math.sqrt((c1.x() - c2.x()) * (c1.x() - c2.x()) + (c1.y() - c2.y()) * (c1.y() - c2.y()));
 		return ((DistBetweenCenters < (r1 + r2)) || (DistBetweenCenters < Math.abs(r1 - r2)));
 	}
 

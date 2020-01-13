@@ -8,16 +8,23 @@ import static com.lk.engine.common.misc.NumUtils.QUARTER_PI;
 
 import com.lk.engine.common.d2.Vector2D;
 import com.lk.engine.common.fsm.State;
+import com.lk.engine.common.fsm.StateAdapter;
 import com.lk.engine.common.fsm.StateMachine;
 import com.lk.engine.common.telegraph.Message;
 import com.lk.engine.common.telegraph.TelegramPackage;
 import com.lk.engine.common.telegraph.Telegraph;
 import com.lk.engine.soccer.elements.players.Player;
+import com.lk.engine.soccer.elements.players.states.ReturnToHomeRegion;
+import com.lk.engine.soccer.elements.referee.Referee;
 
-public class Dribble implements State {
+public class Dribble extends StateAdapter {
+	public static final String NAME = "Dribble";
 	private final Telegraph telegraph;
+	private final Referee referee;
 
-	public Dribble(final Telegraph telegraph) {
+	public Dribble(final Referee referee, final Telegraph telegraph) {
+		super(NAME);
+		this.referee = referee;
 		this.telegraph = telegraph;
 	}
 
@@ -29,17 +36,22 @@ public class Dribble implements State {
 	}
 
 	@Override
-	public void execute(final StateMachine stateMachine, final Object data) {
+	public State.Status execute(final StateMachine stateMachine, final Object data) {
 		final Player<?> player = stateMachine.getOwner();
 		final double dot = player.team().goal().facing().dot(player.heading());
 
+		if (referee.goalKeeperHasBall()) {
+			stateMachine.changeTo(ReturnToHomeRegion.NAME);
+			return State.Status.INTERRUPTIBLE;
+		}
 		// if the ball is between the player and the home goal, it needs to swivel
 		// the ball around by doing multiple small kicks and turns until the player
 		// is facing in the correct direction
 		if (dot < 0) {
 			// the player's heading is going to be rotated by a small amount (Pi/4)
 			// and then the ball will be kicked in that direction
-			final Vector2D direction = player.heading();
+			//TODO: esto estaba horrible check
+			final Vector2D direction = new Vector2D(player.heading());
 
 			// calculate the sign (+/-) of the angle between the player heading and
 			// the
@@ -59,14 +71,6 @@ public class Dribble implements State {
 			player.ball().kick(player.team().goal().facing(), player.getParams().getMaxDribbleForce());
 		}
 
-		// the player has kicked the ball so he must now change state to follow it
-		stateMachine.changeTo(ChaseBall.class);
-
-		return;
+		return State.Status.INTERRUPTIBLE;
 	}
-
-	@Override
-	public void exit(final StateMachine stateMachine) {
-	}
-
 }

@@ -17,13 +17,13 @@ public class SupportAtAtackerHandler implements TelegramHandler {
 	public Processed handle(final Telegram telegram) {
 		final Player<?> player = stateMachine.getOwner();
 		// if already supporting just return
-		if (stateMachine.isInState(SupportAttacker.class)) {
+		if (stateMachine.isInState(SupportAttacker.NAME)) {
 			return Processed.NO;
 		}
 
 		// set the target to be the best supporting position
 		player.steering().setTarget(player.team().getSupportSpot());
-		stateMachine.changeTo(SupportAttacker.class);
+		stateMachine.changeTo(SupportAttacker.NAME);
 		return Processed.YES;
 	}
 }

@@ -3,16 +3,23 @@
  */
 package com.lk.engine.soccer.elements.team.states;
 
+import com.google.gwt.core.client.GWT;
 import com.lk.engine.common.fsm.State;
+import com.lk.engine.common.fsm.StateAdapter;
 import com.lk.engine.common.fsm.StateMachine;
-import com.lk.engine.soccer.elements.Referee;
+import com.lk.engine.soccer.elements.players.goalkeeper.states.ReturnHome;
+import com.lk.engine.soccer.elements.players.states.ReturnToHomeRegion;
+import com.lk.engine.soccer.elements.referee.Referee;
 import com.lk.engine.soccer.elements.team.Team;
 
-public class PrepareForKickOff implements State {
-	private final Referee referee;
+public class PrepareForKickOff extends StateAdapter {
+	public static final String NAME = "PrepareForKickOff";
+	
+	//private final Referee referee;
 
 	public PrepareForKickOff(final Referee referee) {
-		this.referee = referee;
+		super(NAME);
+		//this.referee = referee;
 	}
 
 	@Override
@@ -23,20 +30,24 @@ public class PrepareForKickOff implements State {
 		team.setSupportingPlayer(null);
 		team.setReceiver(null);
 		team.setPlayerClosestToBall(null);
+		team.prepareForKickoff();
+		team.changeFieldPlayersTo(ReturnToHomeRegion.NAME);
+		team.changeGoalKeeperTo(ReturnHome.NAME);
 	}
 
 	@Override
-	public void execute(final StateMachine stateMachine, final Object data) {
+	public State.Status execute(final StateMachine stateMachine, final Object data) {
 		final Team team = stateMachine.getOwner();
-		// if both teams in position, start the game
-		if (team.allPlayersAtHome() && team.opponents().allPlayersAtHome()) {
-			stateMachine.changeTo(Defending.class);
+		if (team.allPlayersAtHome()) {
+			GWT.debugger();
+			stateMachine.changeTo(WaitForReferee.NAME);
 		}
+		
+		return State.Status.INTERRUPTIBLE;
 	}
 
 	@Override
 	public void exit(final StateMachine stateMachine) {
-		referee.setGameOn();
+		//referee.setGameOn();
 	}
-
 }

@@ -76,6 +76,11 @@ public final class NumUtils {
 	}
 
 	public static <T extends Number> String toString(final T t, final int precision) {
-		return t.toString();
+		final String s = t.toString();
+		int index = s.indexOf('.');
+		if (index > 0 && s.length() >= index + precision) {
+			return s.substring(0, index + precision);
+		}
+		return s;
 	}
 }

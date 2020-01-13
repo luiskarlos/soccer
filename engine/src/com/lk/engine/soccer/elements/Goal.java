@@ -13,29 +13,30 @@ import static com.lk.engine.common.d2.Geometry.lineIntersection2D;
 import static com.lk.engine.common.d2.Vector2D.add;
 import static com.lk.engine.common.d2.Vector2D.div;
 
+import com.lk.engine.common.console.params.GoalParams;
+import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
-import com.lk.engine.soccer.console.params.GoalParams;
 
 public class Goal {
-	private Vector2D leftPost;
-	private Vector2D rightPost;
+	private final Vector2D leftPost;
+	private final Vector2D rightPost;
 	// a vector representing the facing direction of the goal
-	private Vector2D facing;
+	private final Vector2D facing;
 	// the position of the center of the goal line
-	private Vector2D center;
+	private final Vector2D center;
 	// each time Scored() detects a goal this is incremented
 	private int numGoalsScored;
 
 	private final GoalParams params;
 
-	public Goal(final GoalParams params, final Vector2D left, final Vector2D right, final Vector2D facing) {
+	public Goal(final GoalParams params, final UVector2D left, final UVector2D right, final UVector2D facing) {
 		this.params = params;
 
-		this.leftPost = left;
-		this.rightPost = right;
+		this.leftPost = new Vector2D(left);
+		this.rightPost = new Vector2D(right);
 		this.center = div(add(left, right), 2.0);
 		this.numGoalsScored = 0;
-		this.facing = facing;
+		this.facing = new Vector2D(facing);
 	}
 
 	/**
@@ -52,20 +53,20 @@ public class Goal {
 	}
 
 	// -----------------------------------------------------accessor methods
-	public Vector2D center() {
-		return new Vector2D(center);
+	public UVector2D center() {
+		return center;
 	}
 
-	public Vector2D facing() {
-		return new Vector2D(facing);
+	public UVector2D facing() {
+		return facing;
 	}
 
-	public Vector2D leftPost() {
-		return new Vector2D(leftPost);
+	public UVector2D leftPost() {
+		return leftPost;
 	}
 
-	public Vector2D rightPost() {
-		return new Vector2D(rightPost);
+	public UVector2D rightPost() {
+		return rightPost;
 	}
 
 	public int numGoalsScored() {

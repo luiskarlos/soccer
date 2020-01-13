@@ -13,7 +13,7 @@ public class PlayRegions {
 	public static final int NUM_REGIONS_HORIZONTAL = 6;
 	public static final int NUM_REGIONS_VETTICAL = 3;
 
-	private final List<Region> regions = new ArrayList<Region>();
+	private final List<Region> regions = new ArrayList<Region>(NUM_REGIONS_HORIZONTAL*NUM_REGIONS_VETTICAL);
 
 	public PlayRegions(final FieldPlayingArea playingArea) {
 		createRegions(playingArea, playingArea.getArea().width() / NUM_REGIONS_HORIZONTAL, playingArea.getArea().height()

@@ -11,26 +11,23 @@ import static com.lk.engine.common.d2.Transformation.vec2DRotateAroundOrigin;
 import static com.lk.engine.common.d2.Vector2D.mul;
 import static com.lk.engine.common.misc.NumUtils.clamp;
 
+import com.lk.engine.common.console.params.FieldPlayerParams;
 import com.lk.engine.common.core.EntityFunctionTemplates;
 import com.lk.engine.common.d2.Vector2D;
-import com.lk.engine.common.fsm.StateMachine;
-import com.lk.engine.common.fsm.StateMachineOwner;
 import com.lk.engine.common.misc.Active;
 import com.lk.engine.common.misc.RandomGenerator;
 import com.lk.engine.common.telegraph.Telegraph;
 import com.lk.engine.common.time.Regulator;
-import com.lk.engine.soccer.console.params.FieldPlayerParams;
 import com.lk.engine.soccer.elements.Ball;
 import com.lk.engine.soccer.elements.PlayRegions;
 import com.lk.engine.soccer.elements.Players;
 import com.lk.engine.soccer.elements.players.Player;
-import com.lk.engine.soccer.elements.players.fieldplayer.states.ReturnToHomeRegion;
 import com.lk.engine.soccer.elements.players.fieldplayer.states.Wait;
+import com.lk.engine.soccer.elements.players.states.ReturnToHomeRegion;
 import com.lk.engine.soccer.elements.team.Team;
 
-public class FieldPlayer extends Player<FieldPlayerParams> implements StateMachineOwner {
-	// an instance of the state machine class
-	private StateMachine stateMachine;
+public class FieldPlayer extends Player<FieldPlayerParams> {
+
 	// limits the number of kicks a player may take per second
 	private final Regulator kickLimiter;
 
@@ -52,7 +49,7 @@ public class FieldPlayer extends Player<FieldPlayerParams> implements StateMachi
 	@Override
 	public Active update() {
 		// run the logic for the current state
-		stateMachine.update();
+		getFSM().update();
 
 		// calculate the combined steering force
 		steering.calculate();
@@ -76,7 +73,7 @@ public class FieldPlayer extends Player<FieldPlayerParams> implements StateMachi
 
 		// make sure the velocity vector points in the same direction as
 		// the heading vector
-		velocity = mul(heading, velocity.length());
+		velocity.set(mul(heading, velocity.length()));
 
 		// and recreate side
 		side = heading.perp();
@@ -101,24 +98,15 @@ public class FieldPlayer extends Player<FieldPlayerParams> implements StateMachi
 		return Active.Yes;
 	}
 
-	@Override
-	public StateMachine getFSM() {
-		return stateMachine;
-	}
-
 	public boolean isReadyForNextKick() {
 		return kickLimiter.isReady();
 	}
 
 	@Override
 	public void updateTargetOfWaiting() {
-		if (getFSM().isInState(Wait.class) || getFSM().isInState(ReturnToHomeRegion.class)) {
+		if (getFSM().isInState(Wait.NAME) || getFSM().isInState(ReturnToHomeRegion.NAME)) {
 			steering().setTarget(homeRegion().center());
 		}
 	}
 
-	@Override
-	public void setStateMachine(final StateMachine stateMachine) {
-		this.stateMachine = stateMachine;
-	}
 }

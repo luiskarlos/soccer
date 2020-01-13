@@ -12,15 +12,19 @@
 package com.lk.engine.soccer.elements.players.goalkeeper.states;
 
 import com.lk.engine.common.fsm.State;
+import com.lk.engine.common.fsm.StateAdapter;
 import com.lk.engine.common.fsm.StateMachine;
-import com.lk.engine.soccer.elements.Referee;
 import com.lk.engine.soccer.elements.players.Player;
 import com.lk.engine.soccer.elements.players.goalkeeper.Goalkeeper;
+import com.lk.engine.soccer.elements.referee.Referee;
 
-public class TendGoal implements State {
+public class TendGoal extends StateAdapter {
+	public static final String NAME = "TendGoal";
+	
 	private final Referee referee;
 
 	public TendGoal(final Referee referee) {
+		super(NAME);
 		this.referee = referee;
 	}
 
@@ -36,7 +40,7 @@ public class TendGoal implements State {
 	}
 
 	@Override
-	public void execute(final StateMachine stateMachine, final Object data) {
+	public State.Status execute(final StateMachine stateMachine, final Object data) {
 		final Goalkeeper player = stateMachine.getOwner();
 		// the rear INTERPOSE target will change as the ball's position changes
 		// so it must be updated each update-step
@@ -44,25 +48,25 @@ public class TendGoal implements State {
 
 		// if the ball comes in range the keeper traps it and then changes state
 		// to put the ball back in play
-		if (player.ballWithinKeeperRange()) {
+		if (player.ballInPickupRange()) {
 			player.ball().trap();
 			referee.setGoalKeeperHasBall(true);
-			stateMachine.changeTo(PutBallBackInPlay.class);
-			return;
+			stateMachine.changeTo(PutBallBackInPlay.NAME);
+			return State.Status.INTERRUPTIBLE;
 		}
 
 		// if ball is within a predefined distance, the keeper moves out from
 		// position to try and intercept it.
 		if (player.ballWithinRangeForIntercept() && !player.team().inControl()) {
-			stateMachine.changeTo(InterceptBall.class);
+			stateMachine.changeTo(InterceptBall.NAME);
 		}
 
 		// if the keeper has ventured too far away from the goal-line and there
 		// is no threat from the opponents he should move back towards it
 		if (player.tooFarFromGoalMouth() && player.team().inControl()) {
-			stateMachine.changeTo(ReturnHome.class);
-			return;
+			stateMachine.changeTo(ReturnHome.NAME);	
 		}
+		return State.Status.INTERRUPTIBLE;
 	}
 
 	@Override

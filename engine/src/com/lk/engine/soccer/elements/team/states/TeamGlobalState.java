@@ -3,23 +3,13 @@
  */
 package com.lk.engine.soccer.elements.team.states;
 
-import com.lk.engine.common.fsm.State;
-import com.lk.engine.common.fsm.StateMachine;
+import com.lk.engine.common.fsm.StateAdapter;
 
-public class TeamGlobalState implements State {
+public class TeamGlobalState extends StateAdapter {
+	public static final String NAME = "TeamGlobalState";
+
 	public TeamGlobalState() {
-	}
-
-	@Override
-	public void enter(final StateMachine stateMachine) {
-	}
-
-	@Override
-	public void execute(final StateMachine stateMachine, final Object data) {
-	}
-
-	@Override
-	public void exit(final StateMachine stateMachine) {
+		super(NAME);
 	}
 
 }
