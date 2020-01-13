@@ -1,7 +1,6 @@
 package com.lk.soccer.desktop.gdi;
 
 import com.lk.engine.common.core.Renderable;
-import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
 import com.lk.engine.soccer.elements.players.Player;
 import com.lk.soccer.client.common.gui.CoachRender;
@@ -22,8 +21,8 @@ public class GdiCoach implements Renderable, CoachRender {
 			gdi.circle(passMark, 3);
 
 			if (player != null) {
-				final UVector2D origin = player.pos();
-				gdi.line(origin.x(), origin.y(), passMark.x, passMark.y);
+				final Vector2D origin = player.pos();
+				gdi.line(origin.x, origin.y, passMark.x, passMark.y);
 			}
 		}
 

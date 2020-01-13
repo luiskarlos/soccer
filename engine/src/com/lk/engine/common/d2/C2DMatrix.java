@@ -88,8 +88,8 @@ public class C2DMatrix {
 
 	// applies a 2D transformation matrix to a single Vector2D
 	public void transformVector2Ds(final Vector2D vPoint) {
-		final double x = (matrix._11 * vPoint.x()) + (matrix._21 * vPoint.y()) + (matrix._31);
-		final double y = (matrix._12 * vPoint.x()) + (matrix._22 * vPoint.y()) + (matrix._32);
+		final double x = (matrix._11 * vPoint.x) + (matrix._21 * vPoint.y) + (matrix._31);
+		final double y = (matrix._12 * vPoint.x) + (matrix._22 * vPoint.y) + (matrix._32);
 
 		vPoint.x = x;
 		vPoint.y = y;
@@ -173,14 +173,14 @@ public class C2DMatrix {
 	}
 
 	// create a rotation matrix from a 2D vector
-	public void rotate(final UVector2D fwd, final UVector2D side) {
+	public void rotate(final Vector2D fwd, final Vector2D side) {
 		final Matrix mat = new Matrix();
 
-		mat._11 = fwd.x();
-		mat._12 = fwd.y();
+		mat._11 = fwd.x;
+		mat._12 = fwd.y;
 		mat._13 = 0;
-		mat._21 = side.x();
-		mat._22 = side.y();
+		mat._21 = side.x;
+		mat._22 = side.y;
 		mat._23 = 0;
 		mat._31 = 0;
 		mat._32 = 0;

@@ -11,25 +11,28 @@ import static com.lk.engine.common.d2.Vector2D.sub;
 import static com.lk.engine.common.d2.Vector2D.vec2DDistanceSq;
 import static com.lk.engine.common.d2.Vector2D.vec2DNormalize;
 
-import com.lk.engine.common.console.params.GoalkeeperParams;
 import com.lk.engine.common.core.Region;
-import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
+import com.lk.engine.common.fsm.StateMachine;
+import com.lk.engine.common.fsm.StateMachineOwner;
 import com.lk.engine.common.misc.Active;
 import com.lk.engine.common.telegraph.Telegraph;
+import com.lk.engine.soccer.console.params.GoalkeeperParams;
 import com.lk.engine.soccer.elements.Ball;
 import com.lk.engine.soccer.elements.FieldPlayingArea;
 import com.lk.engine.soccer.elements.PlayRegions;
 import com.lk.engine.soccer.elements.Players;
+import com.lk.engine.soccer.elements.Referee;
 import com.lk.engine.soccer.elements.players.Player;
-import com.lk.engine.soccer.elements.referee.Referee;
 import com.lk.engine.soccer.elements.team.Team;
 
-public class Goalkeeper extends Player<GoalkeeperParams>  {
+public class Goalkeeper extends Player<GoalkeeperParams> implements StateMachineOwner {
+	private StateMachine stateMachine;
+
 	// this vector is updated to point towards the ball and is used when
 	// rendering the goalkeeper (instead of the underlaying vehicle's heading)
 	// to ensure he always appears to be watching the ball
-	private final Vector2D lookAt = new Vector2D();
+	private Vector2D lookAt = new Vector2D();
 	private final FieldPlayingArea playingArea;
 	private final Referee referee;
 
@@ -44,6 +47,13 @@ public class Goalkeeper extends Player<GoalkeeperParams>  {
 		this.referee = referee;
 	}
 
+	/**
+	 * @return true if the ball can be grabbed by the goalkeeper
+	 */
+	public boolean ballWithinKeeperRange() {
+		return (vec2DDistanceSq(pos(), ball().pos()) < getParams().getKeeperInBallRangeSq());
+	}
+
 	@Override
 	public boolean inHomeRegion() {
 		return regions.get(homeRegion).inside(pos(), Region.RegionModifier.NORMAL);
@@ -53,10 +63,10 @@ public class Goalkeeper extends Player<GoalkeeperParams>  {
 	@Override
 	public Active update() {
 		// run the logic for the current state
-		getFSM().update();
+		stateMachine.update();
 
 		// calculate the combined force from each steering behavior
-		final UVector2D SteeringForce = steering.calculate();
+		final Vector2D SteeringForce = steering.calculate();
 
 		// Acceleration = Force/Mass
 		final Vector2D Acceleration = div(SteeringForce, mass());
@@ -76,13 +86,13 @@ public class Goalkeeper extends Player<GoalkeeperParams>  {
 
 		// update the heading if the player has a non zero velocity
 		if (!velocity.isZero()) {
-			heading.set(vec2DNormalize(velocity));
+			heading = vec2DNormalize(velocity);
 			side = heading.perp();
 		}
 
 		// look-at vector always points toward the ball
 		if (!referee.goalKeeperHasBall()) {
-			lookAt.set(vec2DNormalize(sub(ball().pos(), pos())));
+			lookAt = vec2DNormalize(sub(ball().pos(), pos()));
 		}
 
 		return Active.Yes;
@@ -112,20 +122,30 @@ public class Goalkeeper extends Player<GoalkeeperParams>  {
 	 * width to playingfield width
 	 */
 	public Vector2D getRearInterposeTarget() {
-		final double xPosTarget = team().goal().center().x();
+		final double xPosTarget = team().goal().center().x;
 
-		final double yPosTarget = playingArea.getArea().center().y() - team().goal().getWidth() * 0.5
-		    + (ball().pos().y() * team().goal().getWidth()) / playingArea.getArea().height();
+		final double yPosTarget = playingArea.getArea().center().y - team().goal().getWidth() * 0.5
+		    + (ball().pos().y * team().goal().getWidth()) / playingArea.getArea().height();
 
 		return new Vector2D(xPosTarget, yPosTarget);
 	}
 
-	public UVector2D lookAt() {
-		return lookAt;
+	@Override
+	public StateMachine getFSM() {
+		return stateMachine;
 	}
 
-	public void setLookAt(final UVector2D v) {
-		lookAt.set(v);
+	@Override
+	public void setStateMachine(StateMachine stateMachine) {
+		this.stateMachine = stateMachine;
+	}
+
+	public Vector2D lookAt() {
+		return new Vector2D(lookAt);
+	}
+
+	public void setLookAt(final Vector2D v) {
+		lookAt = new Vector2D(v);
 	}
 
 }

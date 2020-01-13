@@ -18,7 +18,7 @@ public class ReceiveBallHandler implements TelegramHandler {
 	public Processed handle(final Telegram telegram) {
 		final Player<?> player = stateMachine.getOwner();
 		player.steering().setTarget((Vector2D) telegram.getExtraInfo());
-		stateMachine.changeTo(ReceiveBall.NAME);
+		stateMachine.changeTo(ReceiveBall.class);
 
 		return Processed.YES;
 	}

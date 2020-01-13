@@ -9,39 +9,27 @@ import static com.lk.engine.common.telegraph.Message.RECEIVE_BALL;
 
 import com.lk.engine.common.d2.Vector2D;
 import com.lk.engine.common.fsm.State;
-import com.lk.engine.common.fsm.StateAdapter;
 import com.lk.engine.common.fsm.StateMachine;
+import com.lk.engine.common.misc.CppToJava.ObjectRef;
 import com.lk.engine.common.misc.RandomGenerator;
 import com.lk.engine.common.telegraph.Message;
 import com.lk.engine.common.telegraph.TelegramPackage;
 import com.lk.engine.common.telegraph.Telegraph;
+import com.lk.engine.soccer.elements.Referee;
 import com.lk.engine.soccer.elements.players.Player;
 import com.lk.engine.soccer.elements.players.fieldplayer.FieldPlayer;
-import com.lk.engine.soccer.elements.referee.Referee;
 
-public class KickBall extends StateAdapter {
-	public static final String NAME = "KickBall";
-	
+public class KickBall implements State {
 	private final Telegraph telegraph;
 	private final RandomGenerator random;
 	private final Referee referee;
 
 	public KickBall(final Telegraph telegraph, final RandomGenerator random, final Referee referee) {
-		super(NAME);
 		this.telegraph = telegraph;
 		this.random = random;
 		this.referee = referee;
 	}
 
-	@Override
-	public Check check(StateMachine stateMachine) {
-		final FieldPlayer player = stateMachine.getOwner();
-		if (player.canKickball()) {
-			return Check.APPLY;
-		}
-	  return Check.NO;
-	}
-	
 	@Override
 	public void enter(final StateMachine stateMachine) {
 		final FieldPlayer player = stateMachine.getOwner();
@@ -50,12 +38,12 @@ public class KickBall extends StateAdapter {
 
 		// the player can only make so many kick attempts per second.
 		if (!player.isReadyForNextKick()) {
-			stateMachine.changeTo(ChaseBall.NAME);
+			stateMachine.changeTo(ChaseBall.class);
 		}
 	}
 
 	@Override
-	public State.Status execute(final StateMachine stateMachine, final Object data) {
+	public void execute(final StateMachine stateMachine, final Object data) {
 		final Player<?> player = stateMachine.getOwner();
 
 		// calculate the dot product of the vector pointing to the ball
@@ -76,7 +64,7 @@ public class KickBall extends StateAdapter {
 		if (player.team().canShoot(player.ball().pos(), shootPower, ballTarget)
 		    || random.nextDouble() < player.getParams().getChanceAttemptsPotShot()) {
 			attemptToTarget(stateMachine, ballTarget, shootPower);
-			return State.Status.INTERRUPTIBLE;
+			return;
 		}
 
 		// cannot kick the ball if the goalkeeper is in possession or if it is
@@ -84,34 +72,31 @@ public class KickBall extends StateAdapter {
 		// continue chasing the ball
 		// Goaly has ball / ball behind player
 		if (player.team().receiver() != null || referee.goalKeeperHasBall() || (dot < 0)) {
-			stateMachine.changeTo(ChaseBall.NAME);
-			return State.Status.INTERRUPTIBLE;
+			stateMachine.changeTo(ChaseBall.class);
+			return;
 		}/**/
 
 		/* Attempt a shot at the goal */
 
 		if (player.team().getCoach().hasPassIndication()) {
 			attemptToTarget(stateMachine, player.team().getCoach().consumePassIndication(), shootPower);
-			stateMachine.changeTo(ChaseBall.NAME);
-			return State.Status.INTERRUPTIBLE;
+			stateMachine.changeTo(ChaseBall.class);
+			return;
 		}
 
 		/* Attempt a pass to a player */
 		final double passPower = player.getParams().getMaxPassingForce() * dot;
-		Player<?> receiverRef = null;
+		final ObjectRef<Player<?>> receiverRef = new ObjectRef<Player<?>>();
 		// test if there are any potential candidates available to receive a pass
-		if (player.isThreatened())
-				receiverRef = player.team().findPass(player, ballTarget, passPower, player.getParams().getMinPassDistance());
-		
-		if (receiverRef != null) {
+		if (player.isThreatened()
+		    && player.team().findPass(player, receiverRef, ballTarget, passPower, player.getParams().getMinPassDistance())) {
 			attemptToPass(stateMachine, ballTarget, passPower, receiverRef);
+			return;
 		} // cannot shoot or pass, so dribble the ball upfield
 		else {
 			player.findSupport();
-			stateMachine.changeTo(Dribble.NAME);
+			stateMachine.changeTo(Dribble.class);
 		}
-
-		return State.Status.INTERRUPTIBLE;
 	}
 
 	private void attemptToTarget(final StateMachine stateMachine, Vector2D target, final double force) {
@@ -132,14 +117,15 @@ public class KickBall extends StateAdapter {
 		player.ball().kick(kickDirection, modulatedForce);
 
 		// change state
-		stateMachine.changeTo(Wait.NAME);
+		stateMachine.changeTo(Wait.class);
 
 		player.findSupport();
 	}
 
 	private void attemptToPass(final StateMachine stateMachine, Vector2D ballTarget, final double power,
-	    final Player<?> receiver) {
+	    final ObjectRef<Player<?>> receiverRef) {
 		final Player<?> player = stateMachine.getOwner();
+		final Player<?> receiver = (Player<?>) receiverRef.get();
 		// add some noise to the kick
 		ballTarget = player.ball().addNoiseToKick(player, player.ball().pos(), ballTarget);
 
@@ -151,8 +137,13 @@ public class KickBall extends StateAdapter {
 
 		// the player should wait at his current position unless instruced
 		// otherwise
-		stateMachine.changeTo(Wait.NAME);
+		stateMachine.changeTo(Wait.class);
 
 		player.findSupport();
 	}
+
+	@Override
+	public void exit(final StateMachine stateMachine) {
+	}
+
 }

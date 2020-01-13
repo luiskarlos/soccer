@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.lk.engine.common.core.EntityFunctionTemplates;
-import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
 import com.lk.engine.soccer.elements.Ball;
 import com.lk.engine.soccer.elements.Players;
@@ -198,8 +197,8 @@ public class SteeringBehaviors {
 	 * Given an opponent and an object position this method returns a force that
 	 * attempts to position the agent between them
 	 */
-	private Vector2D interpose(final Ball ball, final Vector2D target, final double distFromTarget) {
-		return arrive(add(target, mul(vec2DNormalize(sub(ball.pos(), target)), distFromTarget)), Deceleration.NORMAL);
+	private Vector2D interpose(final Ball ball, final Vector2D target, final double DistFromTarget) {
+		return arrive(add(target, mul(vec2DNormalize(sub(ball.pos(), target)), DistFromTarget)), Deceleration.NORMAL);
 	}
 
 	/**
@@ -279,7 +278,7 @@ public class SteeringBehaviors {
 	 * calculates the overall steering force based on the currently active
 	 * steering behaviors.
 	 */
-	public UVector2D calculate() {
+	public Vector2D calculate() {
 		// reset the force
 		steeringForce.zero();
 
@@ -289,7 +288,7 @@ public class SteeringBehaviors {
 		// make sure the force doesn't exceed the vehicles maximum allowable
 		steeringForce.truncate(player.maxForce());
 
-		return steeringForce;
+		return new Vector2D(steeringForce);
 	}
 
 	/**
@@ -312,11 +311,11 @@ public class SteeringBehaviors {
 		return steeringForce;
 	}
 
-	public UVector2D target() {
-		return target;
+	public Vector2D target() {
+		return new Vector2D(target);
 	}
 
-	public void setTarget(final UVector2D t) {
+	public void setTarget(final Vector2D t) {
 		target.set(t);
 	}
 

@@ -13,9 +13,9 @@ import static com.lk.engine.common.d2.Vector2D.sub;
 import static com.lk.engine.common.d2.Vector2D.vec2DNormalize;
 
 public class Wall2D {
-	protected final Vector2D a = new Vector2D();
-	protected final Vector2D b = new Vector2D();
-	protected final Vector2D n = new Vector2D();
+	protected Vector2D a = new Vector2D();
+	protected Vector2D b = new Vector2D();
+	protected Vector2D n = new Vector2D();
 
 	protected void calculateNormal() {
 		final Vector2D temp = vec2DNormalize(sub(b, a));
@@ -26,45 +26,45 @@ public class Wall2D {
 	public Wall2D() {
 	}
 
-	public Wall2D(final UVector2D A, final UVector2D B) {
-		a.set(A);
-		b.set(B);
+	public Wall2D(final Vector2D A, final Vector2D B) {
+		a = A;
+		b = B;
 		calculateNormal();
 	}
 
-	public Wall2D(final UVector2D A, final UVector2D B, final UVector2D N) {
-		a.set(A);
-		b.set(B);
-		n.set(N);
+	public Wall2D(final Vector2D A, final Vector2D B, final Vector2D N) {
+		a = A;
+		b = B;
+		n = N;
 	}
 
-	public UVector2D from() {
+	public Vector2D from() {
 		return a;
 	}
 
-	public void setFrom(final UVector2D v) {
-		a.set(v);
+	public void setFrom(final Vector2D v) {
+		a = v;
 		calculateNormal();
 	}
 
-	public UVector2D to() {
+	public Vector2D to() {
 		return b;
 	}
 
-	public void setTo(final UVector2D v) {
-		b.set(v);
+	public void setTo(final Vector2D v) {
+		b = v;
 		calculateNormal();
 	}
 
-	public UVector2D normal() {
+	public Vector2D normal() {
 		return n;
 	}
 
-	public void setNormal(final UVector2D n) {
-		this.n.set(n);
+	public void setNormal(final Vector2D n) {
+		this.n = n;
 	}
 
-	public UVector2D center() {
+	public Vector2D center() {
 		return div(add(a, b), 2.0);
 	}
 }

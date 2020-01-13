@@ -8,7 +8,7 @@ import static com.lk.engine.common.misc.NumUtils.EPSILON_DOUBLE;
 
 import com.lk.engine.common.misc.NumUtils;
 
-public class Vector2D implements UVector2D {
+public class Vector2D {
 	public static final int CLOCKWISE = 1;
 	public static final int ANTICLOCKWISE = -1;
 
@@ -25,21 +25,14 @@ public class Vector2D implements UVector2D {
 		y = b;
 	}
 
-	public Vector2D(final UVector2D v) {
+	public Vector2D(final Vector2D v) {
+		super();
 		this.set(v);
 	}
 
-	public double x() {
-		return x;
-	}
-
-	public double y() {
-		return y;
-	}
-
-	public Vector2D set(final UVector2D v) {
-		this.x = v.x();
-		this.y = v.y();
+	public Vector2D set(final Vector2D v) {
+		this.x = v.x;
+		this.y = v.y;
 		return this;
 	}
 
@@ -85,8 +78,8 @@ public class Vector2D implements UVector2D {
 	 * @param v2
 	 * @return dot product
 	 */
-	public double dot(final UVector2D v2) {
-		return x * v2.x() + y * v2.y();
+	public double dot(final Vector2D v2) {
+		return x * v2.x + y * v2.y;
 	}
 
 	/**
@@ -94,8 +87,8 @@ public class Vector2D implements UVector2D {
 	 * ANTICLOCKWISE (assuming the Y axis is pointing down, X axis to right like a
 	 * Window app)
 	 */
-	public int sign(final UVector2D v2) {
-		if (y * v2.x() > x * v2.y()) {
+	public int sign(final Vector2D v2) {
+		if (y * v2.x > x * v2.y) {
 			return ANTICLOCKWISE;
 		} else {
 			return CLOCKWISE;
@@ -128,7 +121,7 @@ public class Vector2D implements UVector2D {
 	 * @param v2
 	 * @return the distance between this vector and th one passed as a parameter
 	 */
-	public double distance(final UVector2D v2) {
+	public double distance(final Vector2D v2) {
 		return Math.sqrt(distanceSq(v2));
 	}
 
@@ -139,9 +132,9 @@ public class Vector2D implements UVector2D {
 	 * @param v2
 	 * @return
 	 */
-	public double distanceSq(final UVector2D v2) {
-		final double ySeparation = v2.y() - y;
-		final double xSeparation = v2.x() - x;
+	public double distanceSq(final Vector2D v2) {
+		final double ySeparation = v2.y - y;
+		final double xSeparation = v2.x - x;
 
 		return ySeparation * ySeparation + xSeparation * xSeparation;
 	}
@@ -152,7 +145,7 @@ public class Vector2D implements UVector2D {
 	 * 
 	 * @param norm
 	 */
-	public void reflect(final UVector2D norm) {
+	public void reflect(final Vector2D norm) {
 		this.add(norm.getReverse().mul(2.0 * dot(norm)));
 	}
 
@@ -164,16 +157,16 @@ public class Vector2D implements UVector2D {
 	}
 
 	// we need some overloaded operators
-	public Vector2D add(final UVector2D rhs) {
-		x += rhs.x();
-		y += rhs.y();
+	public Vector2D add(final Vector2D rhs) {
+		x += rhs.x;
+		y += rhs.y;
 
 		return this;
 	}
 
-	public Vector2D sub(final UVector2D rhs) {
-		x -= rhs.x();
-		y -= rhs.y();
+	public Vector2D sub(final Vector2D rhs) {
+		x -= rhs.x;
+		y -= rhs.y;
 
 		return this;
 	}
@@ -192,50 +185,50 @@ public class Vector2D implements UVector2D {
 		return this;
 	}
 
-	public boolean isEqual(final UVector2D rhs) {
-		return (NumUtils.isEqual(x, rhs.x()) && NumUtils.isEqual(y, rhs.y()));
+	public boolean isEqual(final Vector2D rhs) {
+		return (NumUtils.isEqual(x, rhs.x) && NumUtils.isEqual(y, rhs.y));
 	}
 
 	// operator !=
 
-	public boolean notEqual(final UVector2D rhs) {
-		return (x != rhs.x()) || (y != rhs.y());
+	public boolean notEqual(final Vector2D rhs) {
+		return (x != rhs.x) || (y != rhs.y);
 	}
 
 	// ------------------------------------------------------------------------some
 	// more operator overloads
-	public static Vector2D mul(final UVector2D lhs, final double rhs) {
+	public static Vector2D mul(final Vector2D lhs, final double rhs) {
 		final Vector2D result = new Vector2D(lhs);
 		result.mul(rhs);
 		return result;
 	}
 
-	public static Vector2D mul(final double lhs, final UVector2D rhs) {
+	public static Vector2D mul(final double lhs, final Vector2D rhs) {
 		final Vector2D result = new Vector2D(rhs);
 		result.mul(lhs);
 		return result;
 	}
 
 	// overload the - operator
-	public static Vector2D sub(final UVector2D lhs, final UVector2D rhs) {
+	public static Vector2D sub(final Vector2D lhs, final Vector2D rhs) {
 		final Vector2D result = new Vector2D(lhs);
-		result.x -= rhs.x();
-		result.y -= rhs.y();
+		result.x -= rhs.x;
+		result.y -= rhs.y;
 
 		return result;
 	}
 
 	// overload the + operator
-	public static Vector2D add(final UVector2D lhs, final UVector2D rhs) {
+	public static Vector2D add(final Vector2D lhs, final Vector2D rhs) {
 		final Vector2D result = new Vector2D(lhs);
-		result.x += rhs.x();
-		result.y += rhs.y();
+		result.x += rhs.x;
+		result.y += rhs.y;
 
 		return result;
 	}
 
 	// overload the / operator
-	public static Vector2D div(final UVector2D lhs, final double val) {
+	public static Vector2D div(final Vector2D lhs, final double val) {
 		final Vector2D result = new Vector2D(lhs);
 		result.x /= val;
 		result.y /= val;
@@ -251,7 +244,7 @@ public class Vector2D implements UVector2D {
 
 	// ------------------------------------------------------------------------non
 	// member functions
-	public static Vector2D vec2DNormalize(final UVector2D v) {
+	public static Vector2D vec2DNormalize(final Vector2D v) {
 		final Vector2D vec = new Vector2D(v);
 
 		final double vector_length = vec.length();
@@ -264,23 +257,23 @@ public class Vector2D implements UVector2D {
 		return vec;
 	}
 
-	public static double vec2DDistance(final UVector2D v1, final UVector2D v2) {
+	public static double vec2DDistance(final Vector2D v1, final Vector2D v2) {
 		return Math.sqrt(vec2DDistanceSq(v1, v2));
 	}
 
-	public static double vec2DDistanceSq(final UVector2D v1, final UVector2D v2) {
-		final double ySeparation = v2.y() - v1.y();
-		final double xSeparation = v2.x() - v1.x();
+	public static double vec2DDistanceSq(final Vector2D v1, final Vector2D v2) {
+		final double ySeparation = v2.y - v1.y;
+		final double xSeparation = v2.x - v1.x;
 
 		return ySeparation * ySeparation + xSeparation * xSeparation;
 	}
 
-	public static double vec2DLength(final UVector2D v) {
-		return Math.sqrt(v.x() * v.x() + v.y() * v.y());
+	public static double vec2DLength(final Vector2D v) {
+		return Math.sqrt(v.x * v.x + v.y * v.y);
 	}
 
-	public static double vec2DLengthSq(final UVector2D v) {
-		return (v.x() * v.x() + v.y() * v.y());
+	public static double vec2DLengthSq(final Vector2D v) {
+		return (v.x * v.x + v.y * v.y);
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////
@@ -307,24 +300,24 @@ public class Vector2D implements UVector2D {
 	 * returns true if the point p is not inside the region defined by top_left
 	 * and bot_rgt
 	 */
-	public static boolean notInsideRegion(final UVector2D p, final UVector2D topLeft, final UVector2D botRgt) {
-		return (p.x() < topLeft.x()) || (p.x() > botRgt.x()) || (p.y() < topLeft.y()) || (p.y() > botRgt.y());
+	public static boolean notInsideRegion(final Vector2D p, final Vector2D topLeft, final Vector2D botRgt) {
+		return (p.x < topLeft.x) || (p.x > botRgt.x) || (p.y < topLeft.y) || (p.y > botRgt.y);
 	}
 
-	public static boolean insideRegion(final UVector2D p, final UVector2D topLeft, final UVector2D botRgt) {
-		return !((p.x() < topLeft.x()) || (p.x() > botRgt.x()) || (p.y() < topLeft.y()) || (p.y() > botRgt.y()));
+	public static boolean insideRegion(final Vector2D p, final Vector2D topLeft, final Vector2D botRgt) {
+		return !((p.x < topLeft.x) || (p.x > botRgt.x) || (p.y < topLeft.y) || (p.y > botRgt.y));
 	}
 
-	public static boolean insideRegion(final UVector2D p, final int left, final int top, final int right, final int bottom) {
-		return !((p.x() < left) || (p.x() > right) || (p.y() < top) || (p.y() > bottom));
+	public static boolean insideRegion(final Vector2D p, final int left, final int top, final int right, final int bottom) {
+		return !((p.x < left) || (p.x > right) || (p.y < top) || (p.y > bottom));
 	}
 
 	/**
 	 * @return true if the target position is in the field of view of the entity
 	 *         positioned at posFirst facing in facingFirst
 	 */
-	public static boolean isSecondInFOVOfFirst(final UVector2D posFirst, final UVector2D facingFirst,
-	    final UVector2D posSecond, final double fov) {
+	public static boolean isSecondInFOVOfFirst(final Vector2D posFirst, final Vector2D facingFirst,
+	    final Vector2D posSecond, final double fov) {
 		final Vector2D toTarget = vec2DNormalize(sub(posSecond, posFirst));
 		return facingFirst.dot(toTarget) >= Math.cos(fov / 2.0);
 	}

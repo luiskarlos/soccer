@@ -4,19 +4,18 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.lk.engine.common.script.Enviroment;
-import com.lk.engine.common.script.ScriptParser;
-import com.lk.engine.common.script.instructions.Block;
-import com.lk.engine.common.script.instructions.ListenForMessage;
-import com.lk.engine.common.script.instructions.Set;
-import com.lk.engine.common.script.instructions.Spawn;
-import com.lk.engine.common.script.instructions.WalkTo;
+import com.lk.engine.soccer.script.ScriptParser;
+import com.lk.engine.soccer.script.instructions.Block;
+import com.lk.engine.soccer.script.instructions.ListenForMessage;
+import com.lk.engine.soccer.script.instructions.Set;
+import com.lk.engine.soccer.script.instructions.Spawn;
+import com.lk.engine.soccer.script.instructions.WalkTo;
 import com.lk.soccer.engine.soccer.TestUtils;
 
 public class ScriptParserTest {
 	@Test
 	public void emptyBlock() {
-		final ScriptParser parser = new ScriptParser(new Enviroment(null, null, null, null, null));
+		final ScriptParser parser = new ScriptParser();
 		final Block block = parser.parse("named { }");
 
 		assertEquals(1, block.getInstructions().size());
@@ -26,7 +25,7 @@ public class ScriptParserTest {
 
 	@Test
 	public void anonymousBlock() {
-		final ScriptParser parser = new ScriptParser(new Enviroment(null, null, null, null, null));
+		final ScriptParser parser = new ScriptParser();
 		final Block block = parser.parse("{ }");
 
 		assertEquals(1, block.getInstructions().size());
@@ -36,7 +35,7 @@ public class ScriptParserTest {
 
 	@Test
 	public void spawn() {
-		final ScriptParser parser = new ScriptParser(new Enviroment(null, null, null, null, null));
+		final ScriptParser parser = new ScriptParser();
 		final Block block = parser.parse("spawn red.player1 flag1");
 
 		assertEquals(1, block.getInstructions().size());
@@ -46,7 +45,7 @@ public class ScriptParserTest {
 
 	@Test
 	public void set() {
-		final ScriptParser parser = new ScriptParser(new Enviroment(null, null, null, null, null));
+		final ScriptParser parser = new ScriptParser();
 		final Block block = parser.parse("set red.player1.name carlitos");
 
 		assertEquals(1, block.getInstructions().size());
@@ -56,7 +55,7 @@ public class ScriptParserTest {
 
 	@Test
 	public void onExit() {
-		final ScriptParser parser = new ScriptParser(new Enviroment(null, null, null, null, null));
+		final ScriptParser parser = new ScriptParser();
 		final Block block = parser.parse("walk red.goalkeeper to red.goal onExit ListenForMessage red.goalkeeper shoot");
 
 		assertEquals(1, block.getInstructions().size());
@@ -74,7 +73,7 @@ public class ScriptParserTest {
 	public void parsePenalty() {
 		final String script = TestUtils.loadFile(ScriptParserTest.class, "test.script");
 
-		final ScriptParser parser = new ScriptParser(new Enviroment(null, null, null, null, null));
+		final ScriptParser parser = new ScriptParser();
 		final Block block = parser.parse(script);
 
 		assertEquals(1, block.getInstructions().size());

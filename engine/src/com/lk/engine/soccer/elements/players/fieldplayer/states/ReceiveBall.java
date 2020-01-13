@@ -7,7 +7,6 @@ import static java.lang.Math.abs;
 
 import com.lk.engine.common.d2.Vector2D;
 import com.lk.engine.common.fsm.State;
-import com.lk.engine.common.fsm.StateAdapter;
 import com.lk.engine.common.fsm.StateMachine;
 import com.lk.engine.common.misc.RandomGenerator;
 import com.lk.engine.common.telegraph.Message;
@@ -16,15 +15,12 @@ import com.lk.engine.common.telegraph.Telegraph;
 import com.lk.engine.soccer.elements.FieldPlayingArea;
 import com.lk.engine.soccer.elements.players.Player;
 
-public class ReceiveBall extends StateAdapter {
-	public static final String NAME = "ReceiveBall";
-	
+public class ReceiveBall implements State {
 	private final Telegraph telegraph;
 	private final RandomGenerator random;
 	private final FieldPlayingArea playingArea;
 
 	public ReceiveBall(final Telegraph telegraph, final RandomGenerator random, final FieldPlayingArea playingArea) {
-		super(NAME);
 		this.telegraph = telegraph;
 		this.random = random;
 		this.playingArea = playingArea;
@@ -35,7 +31,7 @@ public class ReceiveBall extends StateAdapter {
 	 *         area close to the opponent's goal
 	 */
 	public boolean inHotRegion(Player<?> player) {
-		return abs(player.pos().y() - player.team().opponents().goal().center().y()) < playingArea.getArea().length() / 3.0;
+		return abs(player.pos().y - player.team().opponents().goal().center().y) < playingArea.getArea().length() / 3.0;
 	}
 
 	@Override
@@ -67,8 +63,14 @@ public class ReceiveBall extends StateAdapter {
 	}
 
 	@Override
-	public State.Status execute(final StateMachine stateMachine, final Object data) {
+	public void execute(final StateMachine stateMachine, final Object data) {
 		final Player<?> player = stateMachine.getOwner();
+		// if the ball comes close enough to the player or if his team lose control
+		// he should change state to chase the ball
+		if (player.ballWithinReceivingRange() || !player.team().inControl()) {
+			stateMachine.changeTo(ChaseBall.class);
+			return;
+		}
 
 		if (player.steering().pursuitIsOn()) {
 			player.steering().setTarget(player.ball().pos());
@@ -82,8 +84,6 @@ public class ReceiveBall extends StateAdapter {
 			player.trackBall();
 			player.setVelocity(new Vector2D(0, 0));
 		}
-		
-		return State.Status.INTERRUPTIBLE;
 	}
 
 	@Override

@@ -1,36 +1,33 @@
 package com.lk.engine.soccer;
 
-import static com.lk.engine.common.console.ParamNames.SOCCERPITCH;
-import static com.lk.engine.common.console.ParamNames.SYSTEM;
+import static com.lk.engine.soccer.console.ParamNames.SOCCERPITCH;
+import static com.lk.engine.soccer.console.ParamNames.SYSTEM;
 
-import com.lk.engine.common.console.Parameters;
-import com.lk.engine.common.console.params.SoccerPitchParams;
-import com.lk.engine.common.console.params.SystemParams;
 import com.lk.engine.common.core.UpdateManager;
-import com.lk.engine.common.debug.Debug;
-import com.lk.engine.common.debug.Debuggable;
-import com.lk.engine.common.injector.Injector;
 import com.lk.engine.common.misc.RandomGenerator;
-import com.lk.engine.common.script.Enviroment;
-import com.lk.engine.common.script.Evaluator;
-import com.lk.engine.common.script.Executable;
-import com.lk.engine.common.script.ScriptParser;
-import com.lk.engine.common.script.ScriptParserListener;
-import com.lk.engine.common.script.instructions.Block;
 import com.lk.engine.common.telegraph.Message;
 import com.lk.engine.common.telegraph.Telegram;
 import com.lk.engine.common.telegraph.TelegramCheckin;
 import com.lk.engine.common.telegraph.TelegramHandler;
 import com.lk.engine.common.telegraph.Telegraph;
 import com.lk.engine.common.time.PrecisionTimer;
+import com.lk.engine.soccer.console.Parameters;
+import com.lk.engine.soccer.console.params.SoccerPitchParams;
+import com.lk.engine.soccer.console.params.SystemParams;
 import com.lk.engine.soccer.elements.Ball;
 import com.lk.engine.soccer.elements.PlayRegions;
+import com.lk.engine.soccer.elements.Referee;
 import com.lk.engine.soccer.elements.players.fieldplayer.FieldPlayer;
 import com.lk.engine.soccer.elements.players.goalkeeper.Goalkeeper;
-import com.lk.engine.soccer.elements.referee.Referee;
 import com.lk.engine.soccer.elements.team.Team;
+import com.lk.engine.soccer.injector.Injector;
+import com.lk.engine.soccer.script.Enviroment;
+import com.lk.engine.soccer.script.Evaluator;
+import com.lk.engine.soccer.script.ScriptParser;
+import com.lk.engine.soccer.script.ScriptParserListener;
+import com.lk.engine.soccer.script.instructions.Block;
 
-public class Game implements Debuggable {
+public class Game {
 	private GameBuilderListener gameBuilderListener;
 	private GameListener gameListener;
 	private final Injector injector = new Injector();
@@ -84,11 +81,7 @@ public class Game implements Debuggable {
 	}
 
 	public void eval(String script) {
-		injector.getProvider(Evaluator.class).get().eval(parser.parse(script));
-	}
-	
-	public void eval(final Executable e) {
-		injector.getProvider(Evaluator.class).get().eval(e);
+		injector.get(Evaluator.class).eval(parser.parse(script));
 	}
 
 	public void start() {
@@ -127,9 +120,4 @@ public class Game implements Debuggable {
 	public void checkin(final TelegramCheckin handlers) {
 		injector.get(Telegraph.class).checking(handlers);
 	}
-
-	@Override
-  public void debug(Debug debug) {
-		injector.get(Enviroment.class).debug(debug);	  
-  }
 }

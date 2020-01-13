@@ -12,7 +12,7 @@ import java.util.Map;
 public class EntityManager {
 	// to facilitate quick lookup the entities are stored in a std::map, in which
 	// pointers to entities are cross referenced by their identifying number
-	private final Map<Integer, BaseGameEntity> entityMap = new HashMap<Integer, BaseGameEntity>(50);
+	private final Map<Integer, BaseGameEntity> entityMap = new HashMap<Integer, BaseGameEntity>();
 
 	public EntityManager() {
 	}

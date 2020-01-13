@@ -3,31 +3,35 @@ package com.lk.soccer.engine.soccer.script.evaluator;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
 
-import com.lk.engine.common.console.Console;
-import com.lk.engine.common.console.DefaultConsole;
-import com.lk.engine.common.console.ParamHandler;
-import com.lk.engine.common.console.Parameters;
 import com.lk.engine.common.core.Region;
-import com.lk.engine.common.script.Enviroment;
-import com.lk.engine.common.script.Evaluator;
-import com.lk.engine.common.script.ScriptParser;
-import com.lk.engine.common.script.instructions.Block;
+import com.lk.engine.common.fsm.State;
+import com.lk.engine.soccer.console.Console;
+import com.lk.engine.soccer.console.DefaultConsole;
+import com.lk.engine.soccer.console.ParamHandler;
+import com.lk.engine.soccer.console.Parameters;
+import com.lk.engine.soccer.script.Enviroment;
+import com.lk.engine.soccer.script.Evaluator;
+import com.lk.engine.soccer.script.ScriptParser;
+import com.lk.engine.soccer.script.instructions.Block;
+import com.lk.soccer.engine.soccer.TestUtils;
 
 public class EvaluatorTest {
 	public Enviroment newEnviroment() {
 		final Parameters parameters = new Parameters(new ArrayList<ParamHandler>());
-		return new Enviroment(null, parameters, new DefaultConsole(), null, null);
+		final Map<String, Class<State>> states = new HashMap<String, Class<State>>();
+		return new Enviroment(null, parameters, states, new DefaultConsole(), null);
 	}
 
 	@Test
 	public void run_test_script() {
-		//final Enviroment enviroment = newEnviroment();
-		//final Block block = TestUtils.loadScript("test.script");
-		//eval(enviroment, block);
+		final Enviroment enviroment = newEnviroment();
+		final Block block = TestUtils.loadScript("test.script");
+		eval(enviroment, block);
 	}
 
 	@Test
@@ -66,20 +70,20 @@ public class EvaluatorTest {
 		final TestConsle console = new TestConsle();
 		enviroment.setConsole(console);
 
-		console.setExpected(Level.INFO, new String[] { "my", "echo" });
+		console.setExpected(Console.Level.MSG, new String[] { "my", "echo" });
 		eval(enviroment, "echo \"my echo\"");
 
 		eval(enviroment, "set val 12");
-		console.setExpected(Level.INFO, new String[] { "my", "echo", "12" });
+		console.setExpected(Console.Level.MSG, new String[] { "my", "echo", "12" });
 		eval(enviroment, "echo \"my echo $val\"");
 
-		console.setExpected(Level.INFO, new String[] { "my", "echo", "12" });
+		console.setExpected(Console.Level.INFO, new String[] { "my", "echo", "12" });
 		eval(enviroment, "echo info \"my echo $val\"");
 
 	}
 
 	private void eval(final Enviroment enviroment, final String script) {
-		final Block block = new ScriptParser(enviroment).parse(script);
+		final Block block = new ScriptParser().parse(script);
 		eval(enviroment, block);
 	}
 

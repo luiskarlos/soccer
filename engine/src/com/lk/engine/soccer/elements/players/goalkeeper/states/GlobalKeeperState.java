@@ -3,12 +3,23 @@
  */
 package com.lk.engine.soccer.elements.players.goalkeeper.states;
 
-import com.lk.engine.common.fsm.StateAdapter;
+import com.lk.engine.common.fsm.State;
+import com.lk.engine.common.fsm.StateMachine;
 
-public class GlobalKeeperState extends StateAdapter {
-	public static final String NAME = "GlobalKeeperState";
-	
+public class GlobalKeeperState implements State {
 	public GlobalKeeperState() {
-		super(NAME);
 	}
+
+	@Override
+	public void enter(final StateMachine stateMachine) {
+	}
+
+	@Override
+	public void execute(final StateMachine stateMachine, final Object data) {
+	}
+
+	@Override
+	public void exit(final StateMachine stateMachine) {
+	}
+
 }

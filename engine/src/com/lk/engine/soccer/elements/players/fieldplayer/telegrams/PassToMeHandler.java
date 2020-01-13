@@ -33,7 +33,7 @@ public class PassToMeHandler implements TelegramHandler {
 		player.ball().kick(sub(receiver.pos(), player.ball().pos()), player.getParams().getMaxPassingForce());
 
 		// let the receiver know a pass is coming
-		stateMachine.changeTo(Wait.NAME);
+		stateMachine.changeTo(Wait.class);
 		player.findSupport();
 
 		return Processed.YES;

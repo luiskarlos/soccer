@@ -3,7 +3,7 @@ package com.lk.soccer.desktop.gdi;
 import com.lk.engine.common.core.Region;
 import com.lk.engine.common.core.Renderable;
 import com.lk.engine.common.d2.Wall2D;
-import com.lk.engine.soccer.elements.referee.Referee;
+import com.lk.engine.soccer.elements.Referee;
 
 public class GdiReferee implements Renderable {
 	private final Referee referee;
@@ -40,7 +40,7 @@ public class GdiReferee implements Renderable {
 		// render the pitch markings
 		gdi.whitePen();
 		gdi.circle(playingArea.center(), playingArea.width() * 0.125);
-		gdi.line(playingArea.center().x(), playingArea.top(), playingArea.center().x(), playingArea.bottom());
+		gdi.line(playingArea.center().x, playingArea.top(), playingArea.center().x, playingArea.bottom());
 		gdi.whiteBrush();
 		gdi.circle(playingArea.center(), 2.0);
 

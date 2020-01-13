@@ -12,12 +12,11 @@ import static java.lang.Math.abs;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.lk.engine.common.console.params.TeamParams;
 import com.lk.engine.common.core.Region;
-import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
 import com.lk.engine.common.misc.RandomGenerator;
 import com.lk.engine.common.time.Regulator;
+import com.lk.engine.soccer.console.params.TeamParams;
 import com.lk.engine.soccer.elements.FieldPlayingArea;
 import com.lk.engine.soccer.elements.team.Team.TeamColor;
 
@@ -28,12 +27,12 @@ public class SupportSpotCalculator {
 		Vector2D pos;
 		double score;
 
-		SupportSpot(final UVector2D pos, final double value) {
+		SupportSpot(final Vector2D pos, final double value) {
 			this.pos = new Vector2D(pos);
 			this.score = value;
 		}
 
-		public UVector2D pos() {
+		public Vector2D pos() {
 			return pos;
 		}
 
@@ -43,7 +42,7 @@ public class SupportSpotCalculator {
 	}
 
 	private final Team team;
-	private final List<SupportSpot> spots = new ArrayList<SupportSpot>(50);
+	private final List<SupportSpot> spots = new ArrayList<SupportSpot>();
 	// a pointer to the highest valued spot from the last update
 	private SupportSpot bestSupportingSpot;
 	// this will regulate how often the spots are calculated (default is
@@ -88,7 +87,7 @@ public class SupportSpotCalculator {
 	 * this method iterates through each possible spot and calculates its score.
 	 * TODO: investigar si se puede hacer mejor getSpotPassSafeScore
 	 */
-	public UVector2D determineBestSupportingPosition() {
+	public Vector2D determineBestSupportingPosition() {
 		// only update the spots every few frames
 		if (!regulator.isReady() && bestSupportingSpot != null) {
 			return bestSupportingSpot.pos;
@@ -155,7 +154,7 @@ public class SupportSpotCalculator {
 	 * calculated yet, this method calls DetermineBestSupportingPosition and
 	 * returns the result.
 	 */
-	public UVector2D getBestSupportingSpot() {
+	public Vector2D getBestSupportingSpot() {
 		if (bestSupportingSpot != null) {
 			return bestSupportingSpot.pos;
 		} else {

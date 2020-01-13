@@ -20,14 +20,6 @@ define w
 				
 }
 
-//run player1 { set player blue.player1 goto w }
+run player1 { set player blue.player1 goto w }
 
-spot mid 343 195 0 0
 
-define putBallInMid {
-	change $player to PickupBall 
-	onExit
-		walk $player mid
-}
-
-run { set player blue.player1 goto putBallInMid }

@@ -10,7 +10,6 @@ import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
 import com.lk.engine.common.misc.RandomGenerator;
 
@@ -25,7 +24,7 @@ public class Region {
 	protected double bottom;
 	protected double width;
 	protected double height;
-	protected final Vector2D center;
+	protected Vector2D center;
 	protected int id;
 
 	public Region() {
@@ -61,18 +60,18 @@ public class Region {
 	 * returns true if the given position lays inside the region. The region
 	 * modifier can be used to contract the region bounderies
 	 */
-	public boolean inside(final UVector2D pos) {
+	public boolean inside(final Vector2D pos) {
 		return inside(pos, RegionModifier.NORMAL);
 	}
 
-	public boolean inside(final UVector2D pos, final RegionModifier r) {
+	public boolean inside(final Vector2D pos, final RegionModifier r) {
 		if (r == RegionModifier.NORMAL) {
-			return ((pos.x() > left) && (pos.x() < right) && (pos.y() > top) && (pos.y() < bottom));
+			return ((pos.x > left) && (pos.x < right) && (pos.y > top) && (pos.y < bottom));
 		} else {
 			final double marginX = width * 0.25;
 			final double marginY = height * 0.25;
 
-			return ((pos.x() > (left + marginX)) && (pos.x() < (right - marginX)) && (pos.y() > (top + marginY)) && (pos.y() < (bottom - marginY)));
+			return ((pos.x > (left + marginX)) && (pos.x < (right - marginX)) && (pos.y > (top + marginY)) && (pos.y < (bottom - marginY)));
 		}
 	}
 
@@ -116,8 +115,8 @@ public class Region {
 		return min(width(), height());
 	}
 
-	public UVector2D center() {
-		return center;
+	public Vector2D center() {
+		return new Vector2D(center);
 	}
 
 	public int ID() {

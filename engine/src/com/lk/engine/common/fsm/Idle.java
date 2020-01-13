@@ -1,17 +1,24 @@
 package com.lk.engine.common.fsm;
 
-
-public class Idle extends StateAdapter {
-	public static final String NAME = "Idle";
-	
+public class Idle implements State {
 	private static final Idle idle = new Idle();
 
 	private Idle() {
-		super(NAME);
 	}
 
 	public static Idle instance() {
 		return idle;
 	}
 
+	@Override
+	public void enter(final StateMachine stateMachine) {
+	}
+
+	@Override
+	public void execute(final StateMachine stateMachine, final Object data) {
+	}
+
+	@Override
+	public void exit(final StateMachine stateMachine) {
+	}
 }

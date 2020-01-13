@@ -1,0 +1,26 @@
+
+//team blue
+spawn goalkeeper blue.team GOALKEEPER blue.goalkeeper 150,350
+spawn player blue.team DEFENDER blue.player1 150,150
+spawn player blue.team DEFENDER blue.player2 150,200
+spawn player blue.team ATTACKER blue.player3 150,250
+spawn player blue.team ATTACKER blue.player4 150,300
+
+// team red
+spawn goalkeeper red.team GOALKEEPER red.goalkeeper 350,350
+spawn player red.team DEFENDER red.player1 350,150
+spawn player red.team DEFENDER red.player2 350,200
+spawn player red.team ATTACKER red.player3 350,250
+spawn player red.team ATTACKER red.player4 350,300
+
+change RED to Defending
+change BLUE to Defending
+
+change RED to PrepareForKickOff
+change BLUE to PrepareForKickOff
+
+change blue.player* to ReturnToHomeRegion
+change red.player* to ReturnToHomeRegion
+
+change blue.goalkeeper to ReturnHome
+change red.goalkeeper to ReturnHome

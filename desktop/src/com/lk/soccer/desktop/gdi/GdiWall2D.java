@@ -18,10 +18,10 @@ public class GdiWall2D implements Renderable {
 		// render the normals if rqd
 		if (true) // renderNormals)
 		{
-			final int MidX = (int) ((wall2D.from().x() + wall2D.to().x()) / 2);
-			final int MidY = (int) ((wall2D.from().y() + wall2D.to().y()) / 2);
+			final int MidX = (int) ((wall2D.from().x + wall2D.to().x) / 2);
+			final int MidY = (int) ((wall2D.from().y + wall2D.to().y) / 2);
 
-			gdi.line(MidX, MidY, (int) (MidX + (wall2D.normal().x() * 5)), (int) (MidY + (wall2D.normal().y() * 5)));
+			gdi.line(MidX, MidY, (int) (MidX + (wall2D.normal().x * 5)), (int) (MidY + (wall2D.normal().y * 5)));
 		}
 
 		return true;

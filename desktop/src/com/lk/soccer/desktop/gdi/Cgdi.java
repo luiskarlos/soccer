@@ -22,7 +22,6 @@ import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.util.List;
 
-import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
 
 public class Cgdi {
@@ -426,8 +425,8 @@ public class Cgdi {
 		textAtPos((int) x, (int) y, s);
 	}
 
-	public void textAtPos(final UVector2D pos, final String s) {
-		textAtPos((int) pos.x(), (int) pos.y(), s);
+	public void textAtPos(final Vector2D pos, final String s) {
+		textAtPos((int) pos.x, (int) pos.y, s);
 	}
 
 	public void transparentText() {
@@ -458,8 +457,8 @@ public class Cgdi {
 	}
 
 	// -------------------------Line Drawing
-	public void line(final UVector2D from, final UVector2D to) {
-		line(from.x(), from.y(), to.x(), to.y());
+	public void line(final Vector2D from, final Vector2D to) {
+		line(from.x, from.y, to.x, to.y);
 	}
 
 	public void line(final int a, final int b, final int x, final int y) {
@@ -552,8 +551,8 @@ public class Cgdi {
 		}
 	}
 
-	public void circle(final UVector2D pos, final double radius) {
-		circle(pos.x(), pos.y(), radius);
+	public void circle(final Vector2D pos, final double radius) {
+		circle(pos.x, pos.y, radius);
 	}
 
 	public void circle(final double x, final double y, final double radius) {

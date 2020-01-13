@@ -6,14 +6,14 @@ package com.lk.engine.common.d2;
 import static com.lk.engine.common.d2.Vector2D.add;
 
 public class InvertedAABBox2D {
-	private final Vector2D topLeft = new Vector2D();
-	private final Vector2D bottomRight = new Vector2D();
-	private final Vector2D center = new Vector2D();
+	private Vector2D topLeft;
+	private Vector2D bottomRight;
+	private Vector2D center;
 
-	public InvertedAABBox2D(final UVector2D tl, final UVector2D br) {
-		topLeft.set(tl);
-		bottomRight.set(br);
-		center.set(add(tl, br).div(2.0));
+	public InvertedAABBox2D(final Vector2D tl, final Vector2D br) {
+		topLeft = tl;
+		bottomRight = br;
+		center = add(tl, br).div(2.0);
 	}
 
 	// returns true if the bbox described by other intersects with this one
@@ -46,7 +46,7 @@ public class InvertedAABBox2D {
 		return bottomRight.x;
 	}
 
-	public UVector2D center() {
+	public Vector2D center() {
 		return center;
 	}
 }

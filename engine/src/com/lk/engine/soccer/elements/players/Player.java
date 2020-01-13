@@ -19,28 +19,23 @@ import static java.lang.Math.abs;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.lk.engine.common.console.params.PlayerParams;
 import com.lk.engine.common.core.MovingEntity;
 import com.lk.engine.common.core.Region;
-import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
-import com.lk.engine.common.debug.Debug;
 import com.lk.engine.common.fsm.StateMachine;
-import com.lk.engine.common.fsm.StateMachineOwner;
 import com.lk.engine.common.telegraph.TelegramPackage;
 import com.lk.engine.common.telegraph.Telegraph;
+import com.lk.engine.soccer.console.params.PlayerParams;
 import com.lk.engine.soccer.elements.Ball;
 import com.lk.engine.soccer.elements.PlayRegions;
 import com.lk.engine.soccer.elements.Players;
 import com.lk.engine.soccer.elements.team.Team;
-  
-abstract public class Player<T extends PlayerParams> extends MovingEntity<T> implements StateMachineOwner {
+
+abstract public class Player<T extends PlayerParams> extends MovingEntity<T> {
 	public enum PlayerRole {
 		GOALKEEPER, ATTACKER, DEFENDER
 	};
 
-	private StateMachine stateMachine;
-	
 	// this player's role in the team
 	protected PlayerRole playerRole;
 	// a pointer to this player's team
@@ -70,6 +65,7 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 		this.telegraph = telegraph;
 		this.team = team;
 		this.players = players;
+		this.homeRegion = homeRegion;
 		this.defaultRegion = homeRegion;
 		this.playerRole = role;
 		this.ball = ball;
@@ -98,26 +94,12 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 		// a player's start target is its start position (because it's just waiting)
 		steering.setTarget(regions.get(homeRegion).center());
 	}
-	
-	@Override
-  public void debug(Debug debug) {
-		debug.put("name", getName());
-		super.debug(debug);
-		debug.put("fsn", getFSM());
-  }
-	
+
 	@Override
 	public String toString() {
 		return getParams().getName();
 	}
 
-	/**
-	 * @return true if the ball can be grabbed by the goalkeeper
-	 */
-	public boolean ballInPickupRange() {
-		return (vec2DDistanceSq(pos(), ball().pos()) < getParams().getBallPickupRangeSq());
-	}
-	
 	/**
 	 * returns true if there is an opponent within this player's comfort zone
 	 */
@@ -202,8 +184,8 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 	 * @return true if this player is ahead of the ATTACKER
 	 */
 	public boolean isAheadOfAttacker() {
-		return abs(pos().x() - team().opponents().goal().center().x()) < abs(team().controllingPlayer().pos().x()
-		    - team().opponents().goal().center().x());
+		return abs(pos().x - team().opponents().goal().center().x) < abs(team().controllingPlayer().pos().x
+		    - team().opponents().goal().center().x);
 	}
 
 	// returns true if a player is located at the designated support spot
@@ -227,7 +209,7 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 	 * @return true if the point specified by 'position' is located in front of
 	 *         the player
 	 */
-	public boolean positionInFrontOfPlayer(final UVector2D position) {
+	public boolean positionInFrontOfPlayer(final Vector2D position) {
 		final Vector2D ToSubject = sub(position, pos());
 		return ToSubject.dot(heading()) > 0;
 	}
@@ -263,11 +245,11 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 	 * methods
 	 */
 	public double distToOppGoal() {
-		return abs(pos().x() - team().opponents().goal().center().x());
+		return abs(pos().x - team().opponents().goal().center().x);
 	}
 
 	public double distToHomeGoal() {
-		return abs(pos().x() - team().goal().center().x());
+		return abs(pos().x - team().goal().center().x);
 	}
 
 	public void setDefaultHomeRegion() {
@@ -286,18 +268,9 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 		return regions.get(homeRegion);
 	}
 
-	public void attack() {
-		homeRegion = getParams().getAttackRegion();
+	public void setHomeRegion(final int NewRegion) {
+		homeRegion = NewRegion;
 	}
-
-	public void gotoKickoff() {
-		homeRegion = getParams().getKickoffRegion();
-	}
-
-	public void defence() {
-		homeRegion = getParams().getDefenseRegion();
-	}
-
 
 	public Team team() {
 		return team;
@@ -320,22 +293,12 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 	public List<Vector2D> vecPlayerVB() {
 		return vecPlayerVB;
 	}
+
+	public StateMachine getFSM() {
+		return null;
+	}
 	
 	public String getName() {
 		return getParams().getName();
 	}
-	
-	@Override
-	public StateMachine getFSM() {
-		return stateMachine;
-	}
-
-	@Override
-	public void setStateMachine(StateMachine stateMachine) {
-		this.stateMachine = stateMachine;
-	}
-
-	public void changeTo(String name) {
-	  this.stateMachine.changeTo(name);	  
-  }
 }

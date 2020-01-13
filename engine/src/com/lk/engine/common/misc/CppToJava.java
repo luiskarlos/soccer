@@ -25,9 +25,30 @@ public final class CppToJava {
 		}
 	}
 
+	public static class ObjectRef<T extends Object> {
+		private T t;
+
+		public ObjectRef(final T ref) {
+			t = ref;
+		}
+
+		public ObjectRef() {
+			super();
+		}
+
+		public Object get() {
+			return t;
+		}
+
+		@SuppressWarnings("unchecked")
+		public void set(Object c) {
+			this.t = (T) c;
+		}
+	}
+
 	public static List<Vector2D> clone(final List<Vector2D> list) {
 		try {
-			final List<Vector2D> c = new ArrayList<Vector2D>(list.size());
+			final List<Vector2D> c = new ArrayList<Vector2D>();
 			for (final Vector2D t : list) {
 				final Vector2D copy = new Vector2D(t);
 				c.add(copy);

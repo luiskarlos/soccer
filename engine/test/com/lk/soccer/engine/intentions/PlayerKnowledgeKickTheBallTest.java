@@ -9,9 +9,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.lk.engine.common.console.params.PlayerParams;
 import com.lk.engine.common.d2.Vector2D;
 import com.lk.engine.common.misc.RandomGenerator;
+import com.lk.engine.soccer.console.params.PlayerParams;
 import com.lk.engine.soccer.elements.Ball;
 import com.lk.engine.soccer.elements.players.Player;
 

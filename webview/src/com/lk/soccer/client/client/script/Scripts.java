@@ -7,7 +7,7 @@ import com.google.gwt.resources.client.TextResource;
 public interface Scripts extends ClientBundle {
 	public static final Scripts INSTANCE = GWT.create(Scripts.class);
 
-	@Source("com/lk/engine/soccer/script/spawn-players.script")
+	@Source("spawn-players.script")
 	TextResource spawnPlayers();
 
 	@Source("square.script")

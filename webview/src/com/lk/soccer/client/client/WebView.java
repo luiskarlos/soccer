@@ -2,8 +2,6 @@ package com.lk.soccer.client.client;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
@@ -19,7 +17,6 @@ import com.google.gwt.safehtml.shared.SafeUri;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.lk.engine.common.debug.JsonDebug;
 import com.lk.engine.soccer.Game;
 import com.lk.engine.soccer.GameBuilderListener;
 import com.lk.engine.soccer.elements.Ball;
@@ -54,14 +51,14 @@ public class WebView implements EntryPoint {
 	private Context2d context;
 	private Context2d backBufferContext;
 	private final Images images = Images.INSTANCE;
-	private Logger logger = Logger.getLogger("Game");
 
 	@Override
 	public void onModuleLoad() {
 		GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler() {
 			@Override
 			public void onUncaughtException(Throwable e) {
-				logger.log(Level.SEVERE, e.getMessage(), e);
+				e.printStackTrace();
+				System.out.println(e);
 			}
 		});
 
@@ -85,11 +82,7 @@ public class WebView implements EntryPoint {
 		canvas.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent e) {
-				logger.log(Level.SEVERE, "pos: " + e.getClientX() + ","+ e.getClientY() );
-				JsonDebug json = new JsonDebug();
-				game.debug(json);
-		    logger.log(Level.SEVERE, json.toString());
-				//game.eval(new CoachPassMessage("red", e.getX(), e.getY()));
+				game.eval("pass red " + e.getX() + ", " + e.getY());
 			}
 		});
 
@@ -141,7 +134,7 @@ public class WebView implements EntryPoint {
 
 		@Override
 		public void onCreated(Ball ball) {
-			renderables.add(new CanvasBall(ball));			
+			renderables.add(new CanvasBall(ball));
 		}
 
 		@Override

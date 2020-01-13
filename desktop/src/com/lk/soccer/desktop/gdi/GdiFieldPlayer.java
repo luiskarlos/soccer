@@ -53,13 +53,13 @@ public class GdiFieldPlayer implements Renderable, Decorable {
 		// render the state
 		if (player.getParams().isViewStates()) {
 			gdi.textColor(0, 170, 0);
-			gdi.textAtPos(player.pos().x(), player.pos().y() - 25, new String(player.getFSM().getCurrentStateName()));
+			gdi.textAtPos(player.pos().x, player.pos().y - 25, new String(player.getFSM().getCurrentStateName()));
 		}
 
 		// show IDs
 		if (player.getParams().isViewIDs()) {
 			gdi.textColor(0, 170, 0);
-			gdi.textAtPos(player.pos().x() - 20, player.pos().y() - 25, String.valueOf(player.Id()));
+			gdi.textAtPos(player.pos().x - 20, player.pos().y - 25, String.valueOf(player.Id()));
 		}
 
 		if (player.getParams().isViewTargets()) {

@@ -6,41 +6,30 @@
  */
 package com.lk.engine.common.fsm;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.lk.engine.common.debug.Debug;
-import com.lk.engine.common.debug.Debuggable;
-import com.lk.engine.common.injector.Provider;
-import com.lk.engine.common.script.Evaluator;
-import com.lk.engine.common.script.Executable;
-import com.lk.engine.common.script.instructions.None;
+import com.lk.engine.soccer.injector.States;
+import com.lk.engine.soccer.script.Evaluator;
+import com.lk.engine.soccer.script.Executable;
+import com.lk.engine.soccer.script.instructions.None;
 
-public class StateMachine implements Debuggable {
+public class StateMachine {
 	private final StateMachineOwner owner;
-	private final Provider<Evaluator> evaluator;
-	
+	private final States states;
+
 	private State currentState = Idle.instance();
 	private State previousState = Idle.instance();
 	private State globalState = Idle.instance();
 
 	private boolean changingState = false;
+	private Evaluator evaluator;
 	private Executable onExit = None.NONE;
-	private Map<String, Object> extraData = Collections.emptyMap();
+	private final Map<Class<? extends State>, Object> extraData = new HashMap<Class<? extends State>, Object>();
 
-	public StateMachine(final StateMachineOwner owner, Provider<Evaluator> evaluator) {
+	public StateMachine(final StateMachineOwner owner, final States states) {
 		this.owner = owner;
-		this.evaluator = evaluator;
-	}
-	
-	@Override
-	public void debug(Debug debug) {
-		debug.put("owner", owner.getName());
-		debug.put("currentState", currentState);
-		debug.put("previousState", previousState);
-		debug.put("globalState", globalState);
-		debug.put("type", "StateMachine");
+		this.states = states;
 	}
 
 	public void setCurrentState(final State s) {
@@ -57,32 +46,31 @@ public class StateMachine implements Debuggable {
 
 	public void update() {
 		globalState.execute(this, null);
-		currentState.execute(this, extraData.get(currentState.getName()));
+		currentState.execute(this, extraData.get(currentState.getClass()));
 	}
 
-	public void changeTo(final String newState, final Executable onExit, final Object data) {
+	public void changeTo(final Class<? extends State> newState) {
 		extraData.remove(newState);
-		if (data != null) {
-			if (extraData.equals(Collections.emptyMap()))
-				extraData = new HashMap<String, Object>();
-			extraData.put(newState, data);
-		}
+		changeTo(states.get(newState));
+	}
 
-		changeTo(newState);
-		
+	public void changeTo(final Class<? extends State> newState, final Evaluator evaluator, final Executable onExit,
+	    final Object data) {
+		extraData.remove(newState);
+		if (data != null)
+			extraData.put(newState, data);
+
+		changeTo(states.get(newState));
 		this.onExit = onExit;
+		this.evaluator = evaluator;
 	}
 
 	public void exit() {
 		changeTo(Idle.instance());
 	}
-	
-	public void changeTo(final String newState) {
-		changeTo(evaluator.get().getEnviroment().getState(newState));
-	}
 
 	// change to a new state
-	public void changeTo(final State pNewState) {
+	private void changeTo(final State pNewState) {
 		if (changingState) {
 			throw new RuntimeException("changeTo: Reentrant call from exit method is not allowed!");
 		}
@@ -100,7 +88,7 @@ public class StateMachine implements Debuggable {
 		extraData.remove(previousState);
 
 		if (onExit != None.NONE) {
-			evaluator.get().eval(onExit);
+			evaluator.eval(onExit);
 			onExit = None.NONE;
 		}
 	}
@@ -110,14 +98,14 @@ public class StateMachine implements Debuggable {
 		changeTo(previousState);
 	}
 
-	public boolean isInState(String name) {
-		return currentState.getName() == name;
+	public boolean isInState(final Class<? extends State> clazz) {
+		return currentState.getClass() == clazz;
 	}
 
 	// returns true if the current state's type is equal to the type of the
 	// class passed as a parameter.
 	public boolean isInState(final State st) {
-		return isInState(st.getName());
+		return currentState.getClass() == st.getClass();
 	}
 
 	public State currentState() {
@@ -139,7 +127,7 @@ public class StateMachine implements Debuggable {
 	// only ever used during debugging to grab the name of the current state
 	private String getStateName(State state) {
 		final String[] s = state.getClass().getName().split("\\.");
-		return s[s.length - 1] + "." + state.getName();
+		return s[s.length - 1];
 	}
 
 	@SuppressWarnings("unchecked")
