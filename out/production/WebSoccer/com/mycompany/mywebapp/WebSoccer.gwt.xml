@@ -4,35 +4,28 @@
   so that your app can take advantage of the latest GWT module capabilities.
 -->
 <!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 2.8.2//EN"
-    "http://gwtproject.org/doctype/2.8.2/gwt-module.dtd">
-
-<module rename-to='webview'>
+  "http://gwtproject.org/doctype/2.8.2/gwt-module.dtd">
+<module rename-to='websoccer'>
   <!-- Inherit the core Web Toolkit stuff.                        -->
-
-  <inherits name='com.lk.engine.Engine'/>
+  <inherits name='com.google.gwt.user.User'/>
 
   <!-- Inherit the default GWT style sheet.  You can change       -->
   <!-- the theme of your GWT application by uncommenting          -->
   <!-- any one of the following lines.                            -->
-  <!-- inherits name='com.google.gwt.user.theme.clean.Clean'      -->
-
+  <inherits name='com.google.gwt.user.theme.clean.Clean'/>
   <!-- <inherits name='com.google.gwt.user.theme.standard.Standard'/> -->
   <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
   <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
-  <inherits name="com.google.gwt.logging.Logging"/>
-
-
-  <set-property name="gwt.logging.logLevel" value="INFO"/>
 
   <!-- Other module inherits                                      -->
 
   <!-- Specify the app entry point class.                         -->
-  <entry-point class='com.lk.soccer.client.client.WebView'/>
+  <entry-point class='com.mycompany.mywebapp.client.WebSoccer'/>
 
   <!-- Specify the paths for translatable code                    -->
   <source path='client'/>
   <source path='shared'/>
 
-  <public path="soccer/js"/>
-
+  <!-- allow Super Dev Mode -->
+  <add-linker name="xsiframe"/>
 </module>

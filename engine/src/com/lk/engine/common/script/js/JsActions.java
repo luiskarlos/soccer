@@ -11,6 +11,7 @@ import com.lk.engine.common.injector.EntityBuilder;
 import com.lk.engine.common.script.Environment;
 import com.lk.engine.common.tools.CsvSerializer;
 import com.lk.engine.soccer.elements.players.Player;
+import jsinterop.annotations.JsMethod;
 import jsinterop.annotations.JsType;
 
 import java.util.Arrays;
@@ -72,8 +73,8 @@ public class JsActions {
     return entityManager.getEntityByName(name);
   }
 
-  @JsType
   public class CSV {
+
     public void load(String data) {
       final CsvSerializer.CsvLoadEvent event = new CsvSerializer.CsvLoadEvent(data);
       eventBus.fireEvent(event);

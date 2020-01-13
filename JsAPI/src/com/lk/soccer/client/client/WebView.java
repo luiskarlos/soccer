@@ -28,7 +28,6 @@ import com.lk.engine.soccer.elements.players.fieldplayer.FieldPlayer;
 import com.lk.engine.soccer.elements.players.goalkeeper.Goalkeeper;
 import com.lk.engine.soccer.elements.referee.Referee;
 import com.lk.engine.soccer.elements.team.Team;
-import com.lk.soccer.client.client.script.Scripts;
 import jsinterop.annotations.JsMethod;
 
 /**
@@ -45,30 +44,32 @@ public class WebView implements EntryPoint {
 	@Override
 	public void onModuleLoad() {
 		GWT.setUncaughtExceptionHandler(e -> logger.log(Level.SEVERE, e.getMessage(), e));
-
 		game.setListener(jsListener);
-
-		//loadScript(0, "phaser.js", "game.js");
-
-		registerEngine();
-		addConsole();
-
-    game.start();
+		loadScript(0,"/webview/spawn-players.js");
 	}
 
 	private void loadScript(final int pos, final String ... lib) {
-		ScriptInjector.fromUrl("/js/"+lib[pos]).setCallback(
-		  new Callback<Void, Exception>() {
-	      public void onFailure(Exception reason) {
-	      	logger.log(Level.SEVERE, "Error loading /js/" + lib[pos], reason);
-	      }
-	      public void onSuccess(Void result) {
-	      	if (pos+1 < lib.length) {
-	      		loadScript(pos+1, lib);
-	      	}
-	      	logger.log(Level.SEVERE, "Loaded /js/" + lib[pos]);
-	      }
-		}).inject();
+		ScriptInjector
+				.fromUrl(lib[pos])
+				.setCallback(new Callback<Void, Exception>() {
+
+				  public void onFailure(Exception reason) {
+              logger.log(Level.SEVERE, "Error loading /js/" + lib[pos], reason);
+            }
+
+            public void onSuccess(Void result) {
+              if (pos+1 < lib.length) {
+                loadScript(pos+1, lib);
+              } else {
+                registerEngine();
+                addConsole();
+                game.start();
+              }
+
+              logger.log(Level.SEVERE, "Loaded /js/" + lib[pos]);
+            }
+        })
+        .inject();
 	}
 
 	public void click(int posx, int posy) {
@@ -78,27 +79,29 @@ public class WebView implements EntryPoint {
 
 	@JsMethod
 	public JsActions actions() {
-
 	  return game.actions();
   }
 
 	public native void registerEngine() /*-{
 		var that = this;
-		$wnd.actions = that.@com.lk.soccer.client.client.WebView::actions()();
-        $wnd.gameSpawnPlayers($wnd.actions);
-		$wnd.engine = $wnd.engine || {};
-  	    $wnd.engine.update = $entry(function() {
-    	    that.@com.lk.soccer.client.client.WebView::update()();
-        });
+		$doc.actions = that.@com.lk.soccer.client.client.WebView::actions()();
+		debugger;
+		$doc.engine = $doc.engine || $wnd["engine"] || {};
 
-  	    $wnd.engine.click = $entry(function(x, y) {
-    	    that.@com.lk.soccer.client.client.WebView::click(II)(x, y);
-        });
-        s
+		$doc.gameSpawnPlayers($doc.actions);
+
+		$doc.engine.update = $entry(function() {
+			that.@com.lk.soccer.client.client.WebView::update()();
+		});
+
+		$doc.engine.click = $entry(function(x, y) {
+			that.@com.lk.soccer.client.client.WebView::click(II)(x, y);
+		});
+
  	}-*/;
 
 	private native void onUpdate(String entity, double x, double y, double angle, double speed)/*-{
-	  $wnd.engine.updatePosition(entity, x, y, angle, speed);
+	  $doc.engine.updatePosition(entity, x, y, angle, speed);
 	}-*/;
 
 	public void update() {
@@ -175,7 +178,7 @@ public class WebView implements EntryPoint {
 		}
 
 		private native void jsAddBall(double x, double y, double angle)/*-{
-      $wnd.engine.addBall(x, y, angle);
+      $doc.engine.addBall(x, y, angle);
     }-*/;
 
 		@Override
@@ -185,7 +188,7 @@ public class WebView implements EntryPoint {
 		}
 
 		private native void jsAddPlayer(String team, String entity, double x, double y, double angle)/*-{
-      $wnd.engine.addPlayer(team, entity, x, y, angle);
+      $doc.engine.addPlayer(team, entity, x, y, angle);
     }-*/;
 
 		@Override
@@ -195,7 +198,7 @@ public class WebView implements EntryPoint {
 		}
 
 		private native void jsAddGoalkeeper(String team, String entity, double x, double y, double angle)/*-{
-      $wnd.engine.addGoalkeeper(team, entity, x, y, angle);
+      $doc.engine.addGoalkeeper(team, entity, x, y, angle);
     }-*/;
 
 		@Override

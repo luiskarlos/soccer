@@ -7,7 +7,7 @@ var Soccer = (function () {
       // { preload:this.preload, create:this.create} - functions to call for our states
       this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content', { preload: this.preload, create: this.create, update: this.update });
     }
-    
+
     Soccer.prototype.preload = function () {
       this.game.load.image('dust', 'assets/sprites/fireblob.png');
       this.game.load.image('REDPlayer', 'assets/sprites/red-player.png');
@@ -28,7 +28,7 @@ var Soccer = (function () {
     Soccer.prototype.create = function () {
       var self = this;
       self.entities = {};
-      
+
       self.game.input.onTap.add(function onTap(pointer, doubleTap) {
         if (doubleTap) {
           self.game.debug.text( "Double Tab");
@@ -37,7 +37,7 @@ var Soccer = (function () {
           parent["engine"].click(pointer.x, pointer.y);
         }
       }, self);
-      
+      debugger;
       parent["engine"] = parent["engine"] || {};
       parent["engine"].addBall = function (x, y, angle) {
         var image = self.game.add.sprite(200, 360, 'ball');
