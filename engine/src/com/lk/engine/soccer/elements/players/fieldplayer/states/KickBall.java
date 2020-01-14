@@ -21,7 +21,7 @@ import com.lk.engine.soccer.elements.referee.Referee;
 
 public class KickBall extends StateAdapter {
 	public static final String NAME = "KickBall";
-	
+
 	private final Telegraph telegraph;
 	private final RandomGenerator random;
 	private final Referee referee;
@@ -41,12 +41,12 @@ public class KickBall extends StateAdapter {
 		}
 	  return Check.NO;
 	}
-	
+
 	@Override
 	public void enter(final StateMachine stateMachine) {
 		final FieldPlayer player = stateMachine.getOwner();
 		// let the team know this player is controlling
-		telegraph.post(new TelegramPackage(Message.CONTROLING_PLAYER, player));
+		telegraph.post(new TelegramPackage(Message.CONTROLLING_PLAYER, player));
 
 		// the player can only make so many kick attempts per second.
 		if (!player.isReadyForNextKick()) {
@@ -69,7 +69,7 @@ public class KickBall extends StateAdapter {
 
 		// if a shot is possible, this vector will hold the position along the
 		// opponent's goal line the player should aim for.
-		
+
 		// if it is determined that the player could score a goal from this position
 		// OR if he should just kick the ball anyway, the player will attempt to
 		// make the shot
@@ -102,7 +102,7 @@ public class KickBall extends StateAdapter {
 		// test if there are any potential candidates available to receive a pass
 		if (player.isThreatened())
 				receiverRef = player.team().findPass(player, ballTarget, passPower, player.getParams().getMinPassDistance());
-		
+
 		if (receiverRef != null) {
 			attemptToPass(stateMachine, ballTarget, passPower, receiverRef);
 		} // cannot shoot or pass, so dribble the ball upfield

@@ -18,7 +18,7 @@ import com.lk.engine.soccer.elements.players.Player;
 
 public class ReceiveBall extends StateAdapter {
 	public static final String NAME = "ReceiveBall";
-	
+
 	private final Telegraph telegraph;
 	private final RandomGenerator random;
 	private final FieldPlayingArea playingArea;
@@ -45,7 +45,7 @@ public class ReceiveBall extends StateAdapter {
 		player.team().setReceiver(player);
 
 		// this player is also now the controlling player
-		telegraph.post(new TelegramPackage(Message.CONTROLING_PLAYER, player));
+		telegraph.post(new TelegramPackage(Message.CONTROLLING_PLAYER, player));
 
 		// there are two types of receive behavior. One uses ARRIVE to direct
 		// the receiver to the position sent by the passer in its telegram. The
@@ -82,7 +82,7 @@ public class ReceiveBall extends StateAdapter {
 			player.trackBall();
 			player.setVelocity(new Vector2D(0, 0));
 		}
-		
+
 		return State.Status.INTERRUPTIBLE;
 	}
 

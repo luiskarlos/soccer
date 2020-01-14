@@ -19,7 +19,7 @@ public class Telegraph implements Updatable {
 	public Telegraph(final FrameCounter frameCounter) {
 		this.frameCounter = frameCounter;
 		for (Message msg : Message.values())
-			handlers.put(msg, new ArrayList<TelegramHandler>());
+			handlers.put(msg, new ArrayList<>());
 	}
 
 	public void checking(TelegramCheckin handlers) {

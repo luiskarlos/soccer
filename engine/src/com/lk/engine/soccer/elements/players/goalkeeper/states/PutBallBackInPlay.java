@@ -18,7 +18,7 @@ import com.lk.engine.soccer.elements.referee.Referee;
 
 public class PutBallBackInPlay extends StateAdapter {
 	public static final String NAME = "PutBallBackInPlay";
-	
+
 	private final Telegraph telegraph;
 	private final Referee referee;
 
@@ -32,7 +32,7 @@ public class PutBallBackInPlay extends StateAdapter {
 	public void enter(final StateMachine stateMachine) {
 		final Player<?> player = stateMachine.getOwner();
 		// let the team know that the keeper is in control
-		telegraph.post(new TelegramPackage(Message.CONTROLING_PLAYER, player));
+		telegraph.post(new TelegramPackage(Message.CONTROLLING_PLAYER, player));
 		telegraph.post(new TelegramPackage(Message.GO_HOME));
 	}
 
@@ -40,7 +40,7 @@ public class PutBallBackInPlay extends StateAdapter {
 	public State.Status execute(final StateMachine stateMachine, final Object data) {
 		final Player<?> player = stateMachine.getOwner();
 		final Vector2D ballTarget = new Vector2D();
-		final Player<?> receiver = player.team().findPass(player, ballTarget, 
+		final Player<?> receiver = player.team().findPass(player, ballTarget,
 				player.getParams().getMaxPassingForce(),
 		    player.getParams().getMinPassDistance());
 
@@ -61,7 +61,7 @@ public class PutBallBackInPlay extends StateAdapter {
 		}
 
 		player.setVelocity(new Vector2D());
-		
+
 		return State.Status.INTERRUPTIBLE;
 	}
 }

@@ -32,7 +32,7 @@ public class Dribble extends StateAdapter {
 	public void enter(final StateMachine stateMachine) {
 		final Player<?> player = stateMachine.getOwner();
 		// let the team know this player is controlling
-		telegraph.post(new TelegramPackage(Message.CONTROLING_PLAYER, player));
+		telegraph.post(new TelegramPackage(Message.CONTROLLING_PLAYER, player));
 	}
 
 	@Override
