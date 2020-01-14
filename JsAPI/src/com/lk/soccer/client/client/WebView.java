@@ -11,7 +11,6 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.ScriptInjector;
 import com.google.gwt.dom.client.Document;
-import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.TextArea;
@@ -36,7 +35,7 @@ import jsinterop.annotations.JsMethod;
 public class WebView implements EntryPoint {
 	private static final int width = 700;
 	private static final int height = 400;
-	private final Map<String, MovingEntity<?>> entities = new HashMap<String, MovingEntity<?>>();
+	private final Map<String, MovingEntity<?>> entities = new HashMap<>();
 
 	private final Game game = new Game();
 	private final Logger logger = Logger.getLogger("Game");
@@ -79,7 +78,7 @@ public class WebView implements EntryPoint {
 
 	@JsMethod
 	public JsActions actions() {
-	  return game.actions();
+		return game.actions();
   }
 
 	public native void registerEngine() /*-{
@@ -107,13 +106,14 @@ public class WebView implements EntryPoint {
 	public void update() {
 		game.update();
 		for (Entry<String, MovingEntity<?>> set : entities.entrySet()) {
-	        onUpdate(set.getKey(),
-					set.getValue().pos().x(),
-					set.getValue().pos().y(),
-					angle(set.getValue()),
-					set.getValue().speed()
+	    onUpdate(
+        set.getKey(),
+			  set.getValue().pos().x(),
+				set.getValue().pos().y(),
+				angle(set.getValue()),
+        set.getValue().speed()
 			);
-        }
+    }
 	}
 
 	private final Vector2D imageDirection = new Vector2D(0, -1);
@@ -209,26 +209,10 @@ public class WebView implements EntryPoint {
 	private void addConsole() {
     // Let's make an 80x50 text area to go along with the other two.
     final TextArea ta = TextArea.wrap(Document.get().getElementById("console"));
-    addButton("eval", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				game.eval(ta.getText());
-			}
-		});
 
-    addButton("fsm", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				game.eval("fsm.status");
-			}
-		});
-
-    addButton("start", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				game.eval("change referee to referee.superviseGame");
-			}
-		});
+    addButton("eval", event -> game.eval(ta.getText()));
+    addButton("fsm", event -> game.eval("fsm.status"));
+    addButton("start", event -> game.eval("change referee to referee.superviseGame"));
 	}
 
 	private void addButton(String name, ClickHandler handler) {

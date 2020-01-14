@@ -17,38 +17,38 @@ public class StateExecutable implements State {
   private Provider<Evaluator> evaluator;
 
 	private final State state;
-	
+
 	public StateExecutable(State state, Provider<Evaluator> eval) {
 		this.state = state;
 		this.evaluator = eval;
   }
-	
+
 	@Override
-  public String getName() {	  
-	  return state.getName();
+  public String getName() {
+		return state.getName();
   }
-	
+
 	private <T> List<T> checkNewList(List<T> list) {
 		if (list.equals(Collections.emptyList()))
-			return new ArrayList<T>();
+			return new ArrayList<>();
 		return list;
 	}
-	
+
 	public void onEnterExec(Executable executable) {
 		onEnterExec = checkNewList(onEnterExec);
 		onEnterExec.add(executable);
 	}
-	
+
 	public void onExitExec(Executable executable) {
 		onExitExec = checkNewList(onEnterExec);
 		onExitExec.add(executable);
 	}
-	
+
 	public void beforeExecute(List<State> e) {
 	  beforeExecute = checkNewList(beforeExecute);
 		beforeExecute.addAll(e);
 	}
-	
+
 	public void afterExecute(List<State> e) {
 		afterExecute = checkNewList(afterExecute);
 		afterExecute.addAll(e);
@@ -70,7 +70,7 @@ public class StateExecutable implements State {
 		exec(onEnterExec);
   }
  /**
-  * TODO: this is loosing one turn, because it is changing the state and not executing? 
+  * TODO: this is loosing one turn, because it is changing the state and not executing?
   */
 	@Override
   public State.Status execute(StateMachine stateMachine, Object data) {
@@ -89,19 +89,17 @@ public class StateExecutable implements State {
 		state.exit(stateMachine);
 		exec(onExitExec);
   }
-	
+
 	private Check check(StateMachine stateMachine, List<State> executables) {
-		if (executables.size() > 0) {			
-			for (State s : executables) {
-				if (s.check(stateMachine) == Check.APPLY) {
-					stateMachine.changeTo(s);
-					return Check.APPLY;
-				}
+		for (State state : executables) {
+			if (state.check(stateMachine) == Check.APPLY) {
+				stateMachine.changeTo(state);
+				return Check.APPLY;
 			}
 		}
 		return Check.NO;
 	}
-	
+
 	private Check exec(List<Executable> executable) {
 		for (Executable e : executable) {
 			evaluator.get().eval(e);

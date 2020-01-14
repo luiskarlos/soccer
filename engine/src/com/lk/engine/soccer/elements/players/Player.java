@@ -1,10 +1,10 @@
 /**
  *  Desc: Definition of a soccer player base class. <del>The player inherits
- *        from the autolist class so that any player created will be 
+ *        from the autolist class so that any player created will be
  *        automatically added to a list that is easily accesible by any
  *        other game objects.</del> (mainly used by the steering behaviors and
  *        player state classes)
- * 
+ *
  * @author Petr (http://www.sallyx.org/)
  */
 package com.lk.engine.soccer.elements.players;
@@ -32,14 +32,14 @@ import static com.lk.engine.common.d2.Vector2D.*;
 import static com.lk.engine.common.telegraph.Message.GO_HOME;
 import static com.lk.engine.common.telegraph.Message.SUPPORT_ATTACKER;
 import static java.lang.Math.abs;
-  
+
 abstract public class Player<T extends PlayerParams> extends MovingEntity<T> implements StateMachineOwner, Named {
 	public enum PlayerRole {
 		GOALKEEPER, ATTACKER, DEFENDER
 	};
 
 	private StateMachine stateMachine;
-	
+
 	// this player's role in the team
 	protected PlayerRole playerRole;
 	// a pointer to this player's team
@@ -97,14 +97,15 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 		// a player's start target is its start position (because it's just waiting)
 		steering.setTarget(regions.get(homeRegion).center());
 	}
-	
+
 	@Override
   public void debug(Debug debug) {
 		debug.put("name", getName());
 		super.debug(debug);
+		debug.put("steering", steering);
 		debug.put("fsn", getFSM());
   }
-	
+
 	@Override
 	public String toString() {
 		return getParams().getName();
@@ -116,7 +117,7 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 	public boolean ballInPickupRange() {
 		return (vec2DDistanceSq(pos(), ball().pos()) < getParams().getBallPickupRangeSq());
 	}
-	
+
 	/**
 	 * returns true if there is an opponent within this player's comfort zone
 	 */
@@ -197,7 +198,7 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 	}
 
 	/**
-	 * 
+	 *
 	 * @return true if this player is ahead of the ATTACKER
 	 */
 	public boolean isAheadOfAttacker() {
@@ -319,11 +320,11 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 	public List<Vector2D> vecPlayerVB() {
 		return vecPlayerVB;
 	}
-	
+
 	public String getName() {
 		return getParams().getName();
 	}
-	
+
 	@Override
 	public StateMachine getFSM() {
 		return stateMachine;
@@ -335,7 +336,7 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 	}
 
 	public void changeTo(String name) {
-	  this.stateMachine.changeTo(name);	  
+	  this.stateMachine.changeTo(name);
   }
 
 }

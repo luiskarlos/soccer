@@ -1,7 +1,7 @@
 /**
- * 
+ *
  *  Desc:   class to encapsulate steering behaviors for a soccer player
- * 
+ *
  * @author Petr (http://www.sallyx.org/)
  */
 package com.lk.engine.soccer.elements.players;
@@ -14,14 +14,17 @@ import static com.lk.engine.common.d2.Vector2D.vec2DNormalize;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.lk.engine.common.core.EntityFunctionTemplates;
 import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
+import com.lk.engine.common.debug.Debug;
+import com.lk.engine.common.debug.Debuggable;
 import com.lk.engine.soccer.elements.Ball;
 import com.lk.engine.soccer.elements.Players;
 
-public class SteeringBehaviors {
+public class SteeringBehaviors implements Debuggable {
 	private final Player<?> player;
 	private final Ball ball;
 	private final Set<Behavior> behaviors = new HashSet<Behavior>();
@@ -33,6 +36,16 @@ public class SteeringBehaviors {
 	private final Vector2D target = new Vector2D();
 	// the distance the player tries to INTERPOSE from the target
 	private double interposeDist;
+
+	@Override
+	public void debug(Debug debug) {
+		debug.put("behaviors",
+				behaviors
+						.stream()
+						.map(behavior -> behavior.name())
+						.collect(Collectors.joining(", "))
+		);
+	}
 
 	private enum Behavior {
 		SEEK() {
@@ -169,7 +182,7 @@ public class SteeringBehaviors {
 	}
 
 	/**
-	 * 
+	 *
 	 * this calculates a force repelling from the other neighbors
 	 */
 	protected Vector2D separation() {

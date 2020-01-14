@@ -17,7 +17,7 @@ public class Evaluator implements Updatable {
 	private boolean exiting = false;
 
 	private Executable onExit = None.NONE;
-	
+
 	private static Evaluator activeEvaluator = null;
 
 	public Evaluator(final Environment enviroment) {
@@ -26,8 +26,8 @@ public class Evaluator implements Updatable {
 			activeEvaluator = this;
 		}
 	}
-	
-	public Environment getEnviroment() {
+
+	public Environment getEnvironment() {
 	  return enviroment;
   }
 

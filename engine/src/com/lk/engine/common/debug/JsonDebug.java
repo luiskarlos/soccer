@@ -9,22 +9,22 @@ import com.lk.engine.common.d2.Vector2D;
 import com.lk.engine.common.misc.NumUtils;
 
 public class JsonDebug implements Debug {
-	
+
 	private static final Item NULL = new ItemString("null");
-	
+
 	private ItemObject root = new ItemObject();
 	private ItemArray array;
 
 	public void toString(StringBuilder buffer) {
 		root.toString(buffer);
 	}
-	
+
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
 		root.toString(buffer);
 		return buffer.toString();
 	}
-	
+
 	@Override
   public Debug put(String key, Debuggable serializable) {
 	  root.put(key, toJson(serializable));
@@ -36,19 +36,19 @@ public class JsonDebug implements Debug {
 		root.put(key, toJson(value));
 		return this;
   }
-	
+
 	@Override
   public Debug put(String key, int value) {
 		root.put(key, toJson(value));
 		return this;
   }
-	
+
 	@Override
   public Debug put(String key, double value) {
 		root.put(key, toJson(value));
 		return this;
   }
-	
+
 	@Override
 	public Debug openArray(String key) {
 		array = new ItemArray();
@@ -60,25 +60,25 @@ public class JsonDebug implements Debug {
     array.addItem(toJson(value));
 		return this;
   }
-	
+
 	@Override
   public Debug addToArray(String value) {
     array.addItem(toJson(value));
 		return this;
   }
-	
+
 	@Override
   public Debug addToArray(double value) {
     array.addItem(toJson(value));
 		return this;
   }
-	
+
 	@Override
   public Debug closeArray() {
     array = null;
 		return this;
   }
-	
+
 	private Item toJson(Debuggable serializable) {
 		if (serializable != null) {
 			JsonDebug json = new JsonDebug();
@@ -86,17 +86,17 @@ public class JsonDebug implements Debug {
 			return json.root;
 		} else {
 			return NULL;
-		}	  
+		}
   }
-	
+
 	private Item toJson(String value) {
 	  return new ItemString(value);
   }
-	
+
 	private Item toJson(int value) {
 		return new ItemNumber(value+"");
   }
-	
+
 	private Item toJson(double value) {
 		return new ItemNumber(NumUtils.toString(value, 2));
   }
@@ -119,7 +119,7 @@ interface Item {
 class ItemObject implements Item {
 	private List<String> order = new ArrayList<String>();
   private Map<String, Item> properties = new HashMap<String, Item>();
-	
+
 	public void put(String key, Item value) {
 		order.add(key);
 		properties.put(key, value);
@@ -142,11 +142,11 @@ class ItemObject implements Item {
 
 class ItemString implements Item {
 	private String value;
-	
+
 	public ItemString(final String value) {
 		this.value = value;
 	}
-	
+
 	@Override
   public void toString(StringBuilder buffer) {
 		buffer.append('"').append(value).append('"');
@@ -155,27 +155,28 @@ class ItemString implements Item {
 
 class ItemNumber implements Item {
 	private String value;
-	
+
 	public ItemNumber(final String value) {
 		this.value = value;
 	}
-	
+
 	@Override
   public void toString(StringBuilder buffer) {
 		buffer.append(value);
 	}
 }
+
 class ItemArray implements Item {
 	private List<Item> value = new ArrayList<Item>();
-	
+
 	public ItemArray() {
 	}
-	
+
 	public ItemArray addItem(Item item) {
 		value.add(item);
 		return this;
 	}
-	
+
 	@Override
   public void toString(StringBuilder buffer) {
 		buffer.append('[');

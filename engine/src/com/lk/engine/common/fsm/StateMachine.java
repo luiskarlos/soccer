@@ -1,7 +1,7 @@
 /**
- * State machine class. Inherit from this class and create some 
+ * State machine class. Inherit from this class and create some
  * states to give your agents FSM functionality
- * 
+ *
  * @author Petr (http://www.sallyx.org/)
  */
 package com.lk.engine.common.fsm;
@@ -36,7 +36,7 @@ public class StateMachine implements Debuggable {
 		this.evaluator = evaluator;
 		this.eventBus = eventBus;
 	}
-	
+
 	@Override
 	public void debug(Debug debug) {
 		debug.put("owner", owner.getName());
@@ -47,7 +47,7 @@ public class StateMachine implements Debuggable {
 	}
 
 	public void setCurrentState(final String state) {
-		setCurrentState(evaluator.get().getEnviroment().getState(state));
+		setCurrentState(evaluator.get().getEnvironment().getState(state));
 	}
 
 	public void setCurrentState(final State s) {
@@ -76,16 +76,16 @@ public class StateMachine implements Debuggable {
 		}
 
 		changeTo(newState);
-		
+
 		this.onExit = onExit;
 	}
 
 	public void exit() {
 		changeTo(Idle.instance());
 	}
-	
+
 	public void changeTo(final String newState) {
-		changeTo(evaluator.get().getEnviroment().getState(newState));
+		changeTo(evaluator.get().getEnvironment().getState(newState));
 	}
 
 	// change to a new state
@@ -97,7 +97,7 @@ public class StateMachine implements Debuggable {
 		previousState = currentState;
 
 		System.out.println("sfm: " + owner.getName() + " " + getStateName(currentState) + " => " + getStateName(pNewState));
-		
+
 		changingState = true;
 		currentState.exit(this);
 		changingState = false;
@@ -144,7 +144,7 @@ public class StateMachine implements Debuggable {
 	public String getCurrentStateName() {
 		return getStateName(currentState);
 	}
-	
+
 	// only ever used during debugging to grab the name of the current state
 	private String getStateName(State state) {
 		final String[] s = state.getClass().getName().split("\\.");
