@@ -13,9 +13,9 @@ import com.lk.engine.common.script.Executable;
 
 public class ListVariables implements Executable {
 	private static Logger logger = Logger.getLogger("ListVariables");
-	
+
   private final String p;
-  
+
 	public ListVariables(String search) {
 		if (search.isEmpty() || search.equals("*"))
 			p = "";
@@ -27,8 +27,8 @@ public class ListVariables implements Executable {
 	public Active execute(final Evaluator evaluator, final Environment enviroment) {
 		final List<String> vars = enviroment.listVariables();
 
-		final List<String> varsValue = new ArrayList<String>();
-		for (String var : vars) {
+		final List<String> varsValue = new ArrayList<>();
+		for (final String var : vars) {
 	    if (var.startsWith(p)) {
 	    	if (enviroment.getVariable(var).getParamAccess() != null)
 	    	  varsValue.add(var + " = " + enviroment.getVariable(var).getParamAccess().getValue());
@@ -36,14 +36,14 @@ public class ListVariables implements Executable {
 	    		varsValue.add(var + " = null");
 	    }
     }
-		
+
 		Collections.sort(vars);
-		StringBuffer buffer = new StringBuffer();
+		final StringBuffer buffer = new StringBuffer();
 		for (String var : varsValue) {
 			buffer.append("  ").append(var.toString()).append('\n');
     }
 
-		logger.log(Level.SEVERE, "\n" + buffer.toString());		
+		logger.log(Level.SEVERE, "\n" + buffer.toString());
 		return Active.No;
 	}
 

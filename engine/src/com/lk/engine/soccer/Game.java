@@ -90,7 +90,7 @@ public class Game implements Debuggable {
 	public void eval(String script) {
 		injector.getProvider(Evaluator.class).get().eval(parser.parse(script));
 	}
-	
+
 	public void eval(final Executable e) {
 		injector.getProvider(Evaluator.class).get().eval(e);
 	}
@@ -115,13 +115,13 @@ public class Game implements Debuggable {
 		return timer.readyForNextFrame();
 	}
 
-	public void update() {
+	public void update(long time, int delta) {
 		// if (timer.readyForNextFrame())
 		{
 			if (gameListener != null)
 				gameListener.onUpdateStart();
 
-			injector.get(UpdateManager.class).update();
+			injector.get(UpdateManager.class).update(time, delta);
 
 			if (gameListener != null)
 				gameListener.onUpdateEnd();

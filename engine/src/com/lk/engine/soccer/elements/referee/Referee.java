@@ -3,7 +3,7 @@
  *          two soccer teams, two goals, the playing area, the ball
  *          etc. This is the root class for all the game updates and
  *          renders etc
- * 
+ *
  * @author Petr (http://www.sallyx.org/)
  */
 package com.lk.engine.soccer.elements.referee;
@@ -63,24 +63,24 @@ public class Referee extends BaseGameEntity implements Updatable, StateMachineOw
 	 * pass a time_elapsed as a parameter to the game entities
 	 */
 	@Override
-	public Active update() {
+	public Active update(long time, int delta) {
 		// if a goal has been detected reset the pitch ready for kickoff
 		// TODO: cuando anota
 		/*
 		 * if (blueTeam.goal().scored(ball) || redTeam.goal().scored(ball)) { gameOn
 		 * = false;
-		 * 
+		 *
 		 * // reset the ball ball.placeAtPosition(new Vector2D(xClient / 2.0,
 		 * yClient / 2.0));
-		 * 
+		 *
 		 * // get the teams ready for kickoff
 		 * redTeam.getFSM().changeTo(PrepareForKickOff.class);
 		 * blueTeam.getFSM().changeTo(PrepareForKickOff.class);
-		 * 
+		 *
 		 * messageDispatcher.dispatchMsg(SEND_MSG_IMMEDIATELY, SENDER_ID_IRRELEVANT,
 		 * ALL, Message.GO_HOME, null); }/*
 		 */
-		fsm.update();
+		fsm.update(time, delta); //TODO: FMS is now updatable, change the injector
 		return Active.Yes;
 	}
 
@@ -172,7 +172,7 @@ public class Referee extends BaseGameEntity implements Updatable, StateMachineOw
   }
 
 	public boolean areTeamsReadyForKickoff() {
-	  return redTeam.getFSM().isInState(WaitForReferee.NAME) && 
+	  return redTeam.getFSM().isInState(WaitForReferee.NAME) &&
 	  		   blueTeam.getFSM().isInState(WaitForReferee.NAME);
   }
 }

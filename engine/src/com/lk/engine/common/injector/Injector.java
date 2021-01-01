@@ -145,7 +145,7 @@ public class Injector {
 				return new ScriptParser(get(Environment.class), eventBus);
 			}
 		});
-		
+
 		instances.put(Evaluator.class, new SingletonFactory() {
 			@Override
 			public Object newInstance() {
@@ -185,13 +185,13 @@ public class Injector {
 						return fsms;
 					}
 				};
-				
+
 				Environment env = new Environment(get(EntityBuilder.class), get(Parameters.class), get(Console.class),
 				    dispatcher, pFsms);
 				return env;
 			}
 		});
-		
+
 		instances.put(PlayRegions.class, new SingletonFactory() {
 			@Override
 			public Object newInstance() {
@@ -245,7 +245,7 @@ public class Injector {
 
 		Map<String, Factory> statesFactory = new StateBuilder(this).addStates();
 		named.putAll(statesFactory);
-		
+
 		named.put("redGoal", new SingletonFactory() {
 			@Override
 			public Object newInstance() {
@@ -292,7 +292,7 @@ public class Injector {
 				return ball;
 			}
 		});
-		
+
 		for (Entry<String, Factory> set : statesFactory.entrySet()) {
 	    states.put(set.getKey(), (State)set.getValue().instance());
     }
@@ -324,12 +324,12 @@ public class Injector {
 	public List<StateMachine> getFsms() {
 	  return fsms;
   }
-	
+
 	public StateMachine newStateMachine(StateMachineOwner owner, String globalState) {
 		final StateMachine stateMachine = new StateMachine(owner, getProvider(Evaluator.class), eventBus);
 		owner.setStateMachine(stateMachine);
 		stateMachine.setGlobalState((State) named.get(globalState).instance());
-		fsms.add(stateMachine);
+		fsms.add(stateMachine);   //TODO: FMS is now updatable, add to updatables
 		return stateMachine;
 	}
 
@@ -364,7 +364,7 @@ public class Injector {
 		else
 			throw new RuntimeException("Injector: instance not found: " + clazz.getName());
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public <T> Provider<T> getProvider(final Class<T> clazz) {
 		if (instances.containsKey(clazz))

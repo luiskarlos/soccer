@@ -44,9 +44,9 @@ public class Evaluator implements Updatable {
 	}
 
 	@Override
-	public Active update() {
+	public Active update(long time, int delta) {
 		execute();
-		executeAdditionalEvaluators();
+		executeAdditionalEvaluators(time, delta);
 		return isActive();
 	}
 
@@ -69,9 +69,9 @@ public class Evaluator implements Updatable {
 		activeEvaluator = tmp												;
 	}
 
-	private void executeAdditionalEvaluators() {
+	private void executeAdditionalEvaluators(long time, int delta) {
 		for (int i = additionalEvaluators.size() - 1; i >= 0; i--) {
-			if (additionalEvaluators.get(i).update() == Active.No)
+			if (additionalEvaluators.get(i).update(time, delta) == Active.No)
 				additionalEvaluators.remove(i);
 		}
 	}

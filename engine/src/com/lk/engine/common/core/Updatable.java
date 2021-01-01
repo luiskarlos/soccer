@@ -3,5 +3,5 @@ package com.lk.engine.common.core;
 import com.lk.engine.common.misc.Active;
 
 public interface Updatable {
-	Active update();
+	Active update(long time, int delta);
 }

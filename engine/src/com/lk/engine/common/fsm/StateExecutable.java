@@ -75,7 +75,7 @@ public class StateExecutable implements State {
 	@Override
   public State.Status execute(StateMachine stateMachine, Object data) {
 		if (check(stateMachine, beforeExecute) == Check.NO) {
-			State.Status status = state.execute(stateMachine, data);
+			final State.Status status = state.execute(stateMachine, data);
 			if (status == State.Status.INTERRUPTIBLE) {
 				check(stateMachine, afterExecute);
 			}

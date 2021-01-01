@@ -11,14 +11,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gwt.event.shared.EventBus;
+import com.lk.engine.common.core.Updatable;
 import com.lk.engine.common.debug.Debug;
 import com.lk.engine.common.debug.Debuggable;
 import com.lk.engine.common.injector.Provider;
+import com.lk.engine.common.misc.Active;
 import com.lk.engine.common.script.Evaluator;
 import com.lk.engine.common.script.Executable;
 import com.lk.engine.common.script.instructions.None;
 
-public class StateMachine implements Debuggable {
+public class StateMachine implements Debuggable, Updatable {
 	private final StateMachineOwner owner;
 	private final Provider<Evaluator> evaluator;
   private final EventBus eventBus;
@@ -62,9 +64,10 @@ public class StateMachine implements Debuggable {
 		previousState = s;
 	}
 
-	public void update() {
+	public Active update(long time, int delta) {
 		globalState.execute(this, null);
 		currentState.execute(this, extraData.get(currentState.getName()));
+		return Active.Yes;
 	}
 
 	public void changeTo(final String newState, final Executable onExit, final Object data) {

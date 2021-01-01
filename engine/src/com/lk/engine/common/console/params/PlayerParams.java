@@ -18,8 +18,8 @@ public class PlayerParams extends MovingEntityParams {
 
 	private double kickFrequency = 8;
 
-	private boolean nonPenetrationConstraint = false;
-	private double separationCoefficient = 10;
+	private boolean nonPenetrationConstraint = true;
+	private double separationCoefficient = 3;
 
 	private double maxDribbleForce = 1.5;
 	private double shortDribbleForce = 0.8;

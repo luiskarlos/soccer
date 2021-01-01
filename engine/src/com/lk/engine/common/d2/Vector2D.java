@@ -5,11 +5,11 @@
 package com.lk.engine.common.d2;
 
 import static com.lk.engine.common.misc.NumUtils.EPSILON_DOUBLE;
-
 import com.lk.engine.common.misc.NumUtils;
-import jsinterop.annotations.JsType;
 
-public class Vector2D implements UVector2D {
+import java.io.Serializable;
+
+public class Vector2D implements UVector2D, Serializable {
 	public static final int CLOCKWISE = 1;
 	public static final int ANTICLOCKWISE = -1;
 
@@ -82,7 +82,7 @@ public class Vector2D implements UVector2D {
 
 	/**
 	 * calculates the dot product
-	 * 
+	 *
 	 * @param v2
 	 * @return dot product
 	 */
@@ -113,7 +113,7 @@ public class Vector2D implements UVector2D {
 	/**
 	 * adjusts x and y so that the length of the vector does not exceed max
 	 * truncates a vector so that its length does not exceed max
-	 * 
+	 *
 	 * @param max
 	 */
 	public void truncate(final double max) {
@@ -125,7 +125,7 @@ public class Vector2D implements UVector2D {
 
 	/**
 	 * calculates the euclidean distance between two vectors
-	 * 
+	 *
 	 * @param v2
 	 * @return the distance between this vector and th one passed as a parameter
 	 */
@@ -136,9 +136,6 @@ public class Vector2D implements UVector2D {
 	/**
 	 * squared version of distance. calculates the euclidean distance squared
 	 * between two vectors
-	 * 
-	 * @param v2
-	 * @return
 	 */
 	public double distanceSq(final UVector2D v2) {
 		final double ySeparation = v2.y() - y;
@@ -150,7 +147,7 @@ public class Vector2D implements UVector2D {
 	/**
 	 * given a normalized vector this method reflects the vector it is operating
 	 * upon. (like the path of a ball bouncing off a wall)
-	 * 
+	 *
 	 * @param norm
 	 */
 	public void reflect(final UVector2D norm) {

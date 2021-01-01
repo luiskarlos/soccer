@@ -25,3 +25,5 @@ JsAPI/war/WEB-INF/deploy/
 JsAPI/bin/
 JsAPI/.gwt/
 JsAPI/war/webview/
+out/
+gwt-2.9.0/

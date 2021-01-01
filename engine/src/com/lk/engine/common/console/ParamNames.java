@@ -16,7 +16,7 @@ public enum ParamNames {
 
 	private Class<?> clazz;
 
-	private ParamNames(Class<?> clazz) {
+	ParamNames(Class<?> clazz) {
 		this.clazz = clazz;
 	}
 

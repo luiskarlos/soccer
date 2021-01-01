@@ -1,7 +1,7 @@
 /**
  * Desc: Base class to define a common interface for all game
  *       entities
- * 
+ *
  * @author Petr (http://www.sallyx.org/)
  */
 package com.lk.engine.common.core;
@@ -36,14 +36,14 @@ public abstract class BaseGameEntity implements Updatable, Debuggable {
 
 	// its location in the environment
 	protected final Vector2D position = new Vector2D();
-	
+
 	protected Vector2D scale = new Vector2D(1.0, 1.0);
 	// the magnitude of this object's bounding radius
 	protected double boundingRadius;
-	
+
 	private List<Slot> slots = Collections.emptyList();
 
-	public BaseGameEntity() {
+	protected BaseGameEntity() {
 		this(getNextValidID());
 	}
 
@@ -75,13 +75,13 @@ public abstract class BaseGameEntity implements Updatable, Debuggable {
 		}
 		slots.get(slot).setEntity(entity);
 	}
-	
+
 	public void unmount(int slot) {
 		slots.get(slot).setEntity(null);
 	}
-	
+
 	@Override
-	public Active update() {
+	public Active update(long time, int delta) {
 		return Active.No;
 	}
 
@@ -156,17 +156,17 @@ public abstract class BaseGameEntity implements Updatable, Debuggable {
 	public int Id() {
 		return ID;
 	}
-	
+
 	private class Slot {
 		private Vector2D relative = new Vector2D(5, 5);
 		private BaseGameEntity entity = null;
-		
+
 		private void setEntity(BaseGameEntity entity) {
 			this.entity = entity;
 		}
-		
+
 		public void updatePos() {
-			if (entity != null) {				
+			if (entity != null) {
 				entity.setPos(Vector2D.add(position, relative));
 			}
 		}

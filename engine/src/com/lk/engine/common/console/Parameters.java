@@ -13,7 +13,7 @@ public class Parameters {
 	private final Map<String, ParamHandler> params;
 
 	public Parameters(final List<ParamHandler> params) {
-		this.params = new HashMap<String, ParamHandler>(params.size());
+		this.params = new HashMap<>(params.size());
 		for (final ParamHandler ph : params) {
 			this.params.put(ph.name(), ph);
 		}
@@ -52,9 +52,9 @@ public class Parameters {
 	}
 
 	public List<String> keys() {
-		return new ArrayList<String>(params.keySet());
+		return new ArrayList<>(params.keySet());
 	}
-	
+
 	public Set<Entry<String, ParamHandler>> keysets() {
 		return params.entrySet();
 	}

@@ -1,12 +1,3 @@
-/**
- *  Desc: Definition of a soccer player base class. <del>The player inherits
- *        from the autolist class so that any player created will be
- *        automatically added to a list that is easily accesible by any
- *        other game objects.</del> (mainly used by the steering behaviors and
- *        player state classes)
- *
- * @author Petr (http://www.sallyx.org/)
- */
 package com.lk.engine.soccer.elements.players;
 
 import com.lk.engine.common.console.params.PlayerParams;
@@ -25,6 +16,7 @@ import com.lk.engine.soccer.elements.PlayRegions;
 import com.lk.engine.soccer.elements.Players;
 import com.lk.engine.soccer.elements.team.Team;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,10 +25,13 @@ import static com.lk.engine.common.telegraph.Message.GO_HOME;
 import static com.lk.engine.common.telegraph.Message.SUPPORT_ATTACKER;
 import static java.lang.Math.abs;
 
-abstract public class Player<T extends PlayerParams> extends MovingEntity<T> implements StateMachineOwner, Named {
+abstract public class Player<T extends PlayerParams>
+		extends MovingEntity<T>
+		implements StateMachineOwner, Named {
+
 	public enum PlayerRole {
 		GOALKEEPER, ATTACKER, DEFENDER
-	};
+	}
 
 	private StateMachine stateMachine;
 
@@ -54,7 +49,7 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 	// a lot so it's calculated once each time-step and stored here.
 	protected double distSqToBall = Double.MAX_VALUE;
 	// the vertex buffer
-	protected List<Vector2D> vecPlayerVB = new LinkedList<Vector2D>();
+	protected List<Vector2D> vecPlayerVB = new LinkedList<>();
 
 	protected final Telegraph telegraph;
 	protected final Players players;
@@ -74,20 +69,24 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 		this.ball = ball;
 
 		// setup the vertex buffers and calculate the bounding radius
-		final Vector2D player[] = { new Vector2D(-3, 8), new Vector2D(3, 10), new Vector2D(3, -10), new Vector2D(-3, -8) };
-		final int numPlayerVerts = player.length;
+		final Vector2D[] player = {
+				new Vector2D(-3, 8),
+				new Vector2D(3, 10),
+				new Vector2D(3, -10),
+				new Vector2D(-3, -8)
+		};
 
-		for (int vtx = 0; vtx < numPlayerVerts; ++vtx) {
-			vecPlayerVB.add(player[vtx]);
+		for (Vector2D vector2D : player) {
+			vecPlayerVB.add(vector2D);
 
 			// set the bounding radius to the length of the
 			// greatest extent
-			if (abs(player[vtx].x) > boundingRadius) {
-				boundingRadius = abs(player[vtx].x);
+			if (abs(vector2D.x) > boundingRadius) {
+				boundingRadius = abs(vector2D.x);
 			}
 
-			if (abs(player[vtx].y) > boundingRadius) {
-				boundingRadius = abs(player[vtx].y);
+			if (abs(vector2D.y) > boundingRadius) {
+				boundingRadius = abs(vector2D.y);
 			}
 		}
 
@@ -124,14 +123,13 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 	public boolean isThreatened() {
 		// check against all opponents to make sure non are within this player's
 		// comfort zone
-		for (final Player<?> p : team().opponents().members()) {
-			// calculate distance to the player. if dist is less than our
-			// comfort zone, and the opponent is infront of the player, return true
-			if (positionInFrontOfPlayer(p.pos()) && (vec2DDistanceSq(pos(), p.pos()) < getParams().getComfortZone())) {
-				return true;
-			}
-		}
-		return false;
+		return team()
+				.opponents()
+				.members()
+				.stream()
+				.anyMatch(opponent ->
+						positionInFrontOfPlayer(opponent.pos()) &&
+						vec2DDistanceSq(pos(), opponent.pos()) < getParams().getComfortZone());
 	}
 
 	/**
@@ -158,6 +156,7 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> imp
 			final Player<?> bestSupportPly = team().determineBestSupportingAttacker();
 			team().setSupportingPlayer(bestSupportPly);
 			telegraph.post(new TelegramPackage(0, Id(), team().supportingPlayer().Id(), SUPPORT_ATTACKER, null));
+			return;
 		}
 
 		final Player<?> bestSupportPly = team().determineBestSupportingAttacker();

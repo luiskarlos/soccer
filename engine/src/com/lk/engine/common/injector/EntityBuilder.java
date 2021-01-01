@@ -2,6 +2,7 @@ package com.lk.engine.common.injector;
 
 import com.lk.engine.common.console.params.FieldPlayerParams;
 import com.lk.engine.common.console.params.GoalkeeperParams;
+import com.lk.engine.common.d2.Vector2D;
 import com.lk.engine.common.misc.RandomGenerator;
 import com.lk.engine.common.script.Environment;
 import com.lk.engine.common.telegraph.Message;
@@ -26,7 +27,7 @@ public class EntityBuilder {
 	public EntityBuilder(final Injector injector) {
 		this.injector = injector;
 	}
-	
+
 	public void newPlayer(final Environment environment, final String team, final PlayerRole role,
 												final String playerName, final int kickoffRegion) {
 		if (role == PlayerRole.GOALKEEPER)
@@ -47,6 +48,8 @@ public class EntityBuilder {
 		final FieldPlayer fieldPlayer = new FieldPlayer(params, telegraph, team, role, random, environment, regions, ball);
 		fieldPlayer.getParams().setKickoffRegion(kickoffRegion);
 		fieldPlayer.gotoKickoff();
+
+		fieldPlayer.setPos(new Vector2D(random.nextInt(600), random.nextInt(500)));
 
 		injector.newStateMachine(fieldPlayer, GlobalPlayerState.NAME);
 		injector.register(environment, fieldPlayer);
@@ -74,6 +77,9 @@ public class EntityBuilder {
 		    ball);
 		goalkeeper.getParams().setKickoffRegion(kickoffRegion);
 		goalkeeper.gotoKickoff();
+
+		final RandomGenerator random = injector.get(RandomGenerator.class);
+		goalkeeper.setPos(new Vector2D(random.nextInt(600), random.nextInt(500)));
 
 		injector.newStateMachine(goalkeeper, GlobalKeeperState.NAME);
 		injector.register(enviroment, goalkeeper);

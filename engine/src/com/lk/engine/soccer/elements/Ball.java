@@ -2,7 +2,7 @@
  *  Desc: Class to implement a soccer ball. This class inherits from
  *        MovingEntity and provides further functionality for collision
  *        testing and position prediction.
- * 
+ *
  * @author Petr (http://www.sallyx.org/)
  */
 package com.lk.engine.soccer.elements;
@@ -47,7 +47,7 @@ public class Ball extends MovingEntity<BallParams> implements Debuggable {
 		debug.put("oldPos", oldPos);
 		debug.put("type", "Ball");
   }
-	
+
 	public Ball(final BallParams params, final UVector2D pos, final FieldMarkLines markLines, RandomGenerator random) {
 		// set up the base class
 		super(params, pos, new Vector2D(0, 1), new Vector2D(1.0, 1.0));
@@ -132,9 +132,9 @@ public class Ball extends MovingEntity<BallParams> implements Debuggable {
 	 * updates the ball physics, tests for any collisions and adjusts the ball's
 	 * velocity accordingly
 	 */
-	
+
 	@Override
-	public Active update() {
+	public Active update(long time, int delta) { //TODO: update to consider delta
 		// keep a record of the old position so the goal::scored method
 		// can utilize it for goal testing
 		oldPos.set(pos()); //TODO: this is update even if the pos did not change
@@ -247,7 +247,7 @@ public class Ball extends MovingEntity<BallParams> implements Debuggable {
 	 */
 	public void placeAtPosition(final Vector2D newPos) {
 		oldPos.set(pos());
-		setPos(newPos);		
+		setPos(newPos);
 		velocity.zero();
 	}
 

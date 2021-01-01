@@ -1,18 +1,20 @@
 /**
- * 
- *  Desc:   class to create and render 2D walls. Defined as the two 
- *          vectors A - B with a perpendicular NORMAL. 
+ *
+ *  Desc:   class to create and render 2D walls. Defined as the two
+ *          vectors A - B with a perpendicular NORMAL.
  *
  * @author Petr (http://www.sallyx.org/)
  */
 package com.lk.engine.common.d2;
+
+import java.io.Serializable;
 
 import static com.lk.engine.common.d2.Vector2D.add;
 import static com.lk.engine.common.d2.Vector2D.div;
 import static com.lk.engine.common.d2.Vector2D.sub;
 import static com.lk.engine.common.d2.Vector2D.vec2DNormalize;
 
-public class Wall2D {
+public class Wall2D implements Serializable {
 	protected final Vector2D a = new Vector2D();
 	protected final Vector2D b = new Vector2D();
 	protected final Vector2D n = new Vector2D();

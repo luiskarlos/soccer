@@ -46,9 +46,9 @@ public class Geometry {
 		PLANE_BACK_SIDE, PLANE_FRONT, ON_PLANE;
 	}
 
-	public static SpanType whereIsPoint(final UVector2D point, final UVector2D pointOnPlane, 
-			// any on the plane
-	    final UVector2D planeNormal) {
+	public static SpanType whereIsPoint(final UVector2D point, final UVector2D pointOnPlane,
+																			// any on the plane
+	  																	final UVector2D planeNormal) {
 		final Vector2D dir = sub(pointOnPlane, point);
 		final double d = dir.dot(planeNormal);
 
@@ -98,7 +98,7 @@ public class Geometry {
 	 * Given a point P and a circle of radius R centered at C this function
 	 * determines the two points on the circle that intersect with the tangents
 	 * from P to the circle. Returns false if P is within the circle.
-	 * 
+	 *
 	 * Thanks to Dave Eberly for this one.
 	 */
 	public static boolean getTangentPoints(final UVector2D C, final double R, final UVector2D P, final Vector2D T1,
@@ -330,9 +330,9 @@ public class Geometry {
 	/**
 	 * Given two circles this function calculates the intersection points of any
 	 * overlap.
-	 * 
+	 *
 	 * returns false if no overlap found
-	 * 
+	 *
 	 * see http://astronomy.swin.edu.au/~pbourke/Geometry/2circle/
 	 */
 	public static boolean twoCirclesIntersectionPoints(final double x1, final double y1, final double r1,
@@ -379,7 +379,7 @@ public class Geometry {
 	/**
 	 * Tests to see if two circles overlap and if so calculates the area defined
 	 * by the union
-	 * 
+	 *
 	 * see http://mathforum.org/library/drmath/view/54785.html
 	 */
 	public static double twoCirclesIntersectionArea(final double x1, final double y1, final double r1, final double x2,
@@ -443,7 +443,7 @@ public class Geometry {
 	 * given a line segment AB and a circle position and radius, this function
 	 * determines if there is an intersection and stores the position of the
 	 * closest intersection in the reference IntersectionPoint
-	 * 
+	 *
 	 * returns false if no intersection point is found
 	 */
 	public static boolean getLineSegmentCircleClosestIntersectionPoint(final Vector2D A, final Vector2D B,

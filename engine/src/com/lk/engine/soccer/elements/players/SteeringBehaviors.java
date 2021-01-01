@@ -204,22 +204,22 @@ public class SteeringBehaviors implements Debuggable {
 	}
 
 	private Vector2D interpose() {
-		return interpose(ball, target, interposeDist);
+		return interpose(ball.pos(), target, interposeDist);
 	}
 
 	/**
 	 * Given an opponent and an object position this method returns a force that
 	 * attempts to position the agent between them
 	 */
-	private Vector2D interpose(final Ball ball, final Vector2D target, final double distFromTarget) {
-		return arrive(add(target, mul(vec2DNormalize(sub(ball.pos(), target)), distFromTarget)), Deceleration.NORMAL);
+	private Vector2D interpose(final UVector2D objectPos, final Vector2D target, final double distFromTarget) {
+		return arrive(add(target, mul(vec2DNormalize(sub(objectPos, target)), distFromTarget)), Deceleration.NORMAL);
 	}
 
 	/**
 	 * tags any vehicles within a predefined radius
 	 */
 	private Set<Player<?>> findNeighbour() {
-		final Set<Player<?>> tagged = new HashSet<Player<?>>();
+		final Set<Player<?>> tagged = new HashSet<>();
 		for (final Player<?> p : players.getPlayers()) {
 			// work in distance squared to avoid sqrts
 			// final Vector2D to = sub(player.pos(), p.pos());

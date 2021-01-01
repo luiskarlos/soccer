@@ -47,8 +47,8 @@ function gameSpawnPlayers(game) {
     game.before('ReturnToHomeRegion', 'ChaseBall');
 
     game.change('referee', 'referee.prepareForKickOff');
-    game.change('RED', 'PrepareForKickOff')
-    game.change('BLUE', 'PrepareForKickOff')
+    game.change('RED', 'PrepareForKickOff');
+    game.change('BLUE', 'PrepareForKickOff');
 
 }
 

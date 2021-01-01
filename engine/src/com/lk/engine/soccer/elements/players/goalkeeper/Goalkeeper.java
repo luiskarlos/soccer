@@ -1,6 +1,6 @@
 /**
  * Desc:   class to implement a goalkeeper agent
- * 
+ *
  * @author Petr (http://www.sallyx.org/)
  */
 package com.lk.engine.soccer.elements.players.goalkeeper;
@@ -51,9 +51,9 @@ public class Goalkeeper extends Player<GoalkeeperParams>  {
 
 	// these must be implemented
 	@Override
-	public Active update() {
+	public Active update(long time, int delta) { //TODO: update to consider delta
 		// run the logic for the current state
-		getFSM().update();
+		getFSM().update(time, delta);
 
 		// calculate the combined force from each steering behavior
 		final UVector2D SteeringForce = steering.calculate();

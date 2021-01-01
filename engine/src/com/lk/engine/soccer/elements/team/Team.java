@@ -3,7 +3,7 @@
  *          contains several field players and one goalkeeper. A SoccerTeam
  *          is implemented as a finite state machine and has states for
  *          attacking, defending, and KickOff.
- * 
+ *
  * @author Petr (http://www.sallyx.org/)
  */
 package com.lk.engine.soccer.elements.team;
@@ -17,6 +17,7 @@ import static java.lang.Math.abs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.google.gwt.core.client.GWT;
 import com.lk.engine.common.console.params.TeamParams;
@@ -86,7 +87,7 @@ public class Team extends BaseGameEntity implements Updatable, StateMachineOwner
 		supportSpotCalc = new SupportSpotCalculator(params, params.getSupportSpotsX(), params.getSupportSpotsY(), this,
 		    random, playingArea);
 	}
-	
+
 	@Override
   public void debug(Debug debug) {
 		debug.put("team", color.name());
@@ -96,8 +97,8 @@ public class Team extends BaseGameEntity implements Updatable, StateMachineOwner
 		debug.put("supportingPlayer", supportingPlayer);
 		debug.put("receivingPlayer", receivingPlayer);
 		debug.put("playerClosestToBall", playerClosestToBall);
-		
-		debug.openArray("players");		
+
+		debug.openArray("players");
 		for (Player<?> player : players) {
 	    debug.addToArray(player);
     }
@@ -142,7 +143,7 @@ public class Team extends BaseGameEntity implements Updatable, StateMachineOwner
     }
 		updateTargetsOfWaitingPlayers();
 	}
-	
+
 	public void prepareForKickoff() {
 		for (Player<?> player : players) {
 	    player.gotoKickoff();
@@ -184,7 +185,7 @@ public class Team extends BaseGameEntity implements Updatable, StateMachineOwner
 	 * accessed info
 	 */
 	@Override
-	public Active update() {
+	public Active update(long time, int delta) { //TODO: update to consider delta
 		// this information is used frequently so it's more efficient to
 		// calculate it just once each frame
 		calculateClosestPlayerToBall();
@@ -192,7 +193,7 @@ public class Team extends BaseGameEntity implements Updatable, StateMachineOwner
 		// the team state machine switches between attack/defense behavior. It
 		// also handles the 'kick off' state where a team must return to their
 		// kick off positions before the whistle is blown
-		stateMachine.update();
+		stateMachine.update(time, delta);
 
 		return Active.Yes;
 	}
@@ -204,7 +205,7 @@ public class Team extends BaseGameEntity implements Updatable, StateMachineOwner
 	 * direction with the given power. If a possible shot is found, the function
 	 * will immediately return true, with the target position stored in the vector
 	 * ShotTarget.
-	 * 
+	 *
 	 * returns true if player has a clean shot at the goal and sets ShotTarget to
 	 * a normalized vector pointing in the direction the shot should be made. Else
 	 * returns false and sets heading to a zero vector
@@ -520,7 +521,7 @@ public class Team extends BaseGameEntity implements Updatable, StateMachineOwner
 	public Player<?> controllingPlayer() {
 		if (controllingPlayer == null)
 			return playerClosestToBall;
-		
+
 		return controllingPlayer;
 	}
 
@@ -598,7 +599,7 @@ public class Team extends BaseGameEntity implements Updatable, StateMachineOwner
 	public Coach getCoach() {
 		return coach;
 	}
-	
+
 	@Override
 	public String getName() {
 	  return name();
@@ -609,15 +610,15 @@ public class Team extends BaseGameEntity implements Updatable, StateMachineOwner
 	  	if (player != goalKeeper) {
 	  		player.changeTo(name);
 	  	}
-    }	  
+    }
   }
 
 	public void changeGoalKeeperTo(String name) {
-		goalKeeper.changeTo(name);	  
+		goalKeeper.changeTo(name);
   }
 
 	public void changeTo(String name) {
-	  getFSM().changeTo(name);	  
+	  getFSM().changeTo(name);
   }
 
 }

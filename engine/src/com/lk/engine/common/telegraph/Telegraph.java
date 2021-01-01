@@ -61,8 +61,8 @@ public class Telegraph implements Updatable {
 	}
 
 	@Override
-	public Active update() {
-		final double currentTime = frameCounter.getCurrentFrame();
+	public Active update(long time, int delta) {
+		final double currentTime = frameCounter.getCurrentFrame(); //TODO: usar time and delta
 		for (;;) {
 			if (this.delayed.get(0).postTime < currentTime)
 				this.delayed.remove(0).post();

@@ -2,7 +2,7 @@
  *   Desc:   Derived from a PlayerBase, this class encapsulates a player
  *           capable of moving around a soccer pitch, kicking, dribbling,
  *           shooting etc
- * 
+ *
  * @author Petr (http://www.sallyx.org/)
  */
 package com.lk.engine.soccer.elements.players.fieldplayer;
@@ -34,7 +34,8 @@ public class FieldPlayer extends Player<FieldPlayerParams> {
 	public FieldPlayer(final FieldPlayerParams params, final Telegraph telegraph, final Team homeTeam,
 	    final PlayerRole role, final RandomGenerator random, final Players players, final PlayRegions regions,
 	    final Ball ball) {
-		super(params, telegraph, homeTeam, 0, new Vector2D(0, 1), new Vector2D(0.0, 0.0), role, players, regions, ball);
+		super(params, telegraph, homeTeam, 0, new Vector2D(0, 1),
+				new Vector2D(0.0, 0.0), role, players, regions, ball);
 
 		if (getParams().isNonPenetrationConstraint())
 			steering.separationOn();
@@ -47,9 +48,9 @@ public class FieldPlayer extends Player<FieldPlayerParams> {
 	 * call this to update the player's position and orientation
 	 */
 	@Override
-	public Active update() {
+	public Active update(long time, int delta) {//TODO: update to consider delta
 		// run the logic for the current state
-		getFSM().update();
+		getFSM().update(time, delta);
 
 		// calculate the combined steering force
 		steering.calculate();
