@@ -4,7 +4,7 @@
   <property name="gwt.args" value="-generateJsInteropExports" />
 
   <!-- Configure path to GWT SDK -->
-  <property name="gwt.sdk" location="/Users/lhernandez/kev/soccer/gwt-2.8.2" />
+  <property name="gwt.sdk" location="/Users/lhernandez/kev/tools/gwt-2.9.0" />
 
   <path id="project.class.path">
     <pathelement location="war/WEB-INF/classes"/>

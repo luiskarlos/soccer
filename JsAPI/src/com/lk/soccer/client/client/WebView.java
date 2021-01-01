@@ -104,7 +104,7 @@ public class WebView implements EntryPoint {
 	}-*/;
 
 	public void update() {
-		game.update();
+		game.update(0, 0);
 		for (Entry<String, MovingEntity<?>> set : entities.entrySet()) {
 	    onUpdate(
         set.getKey(),
