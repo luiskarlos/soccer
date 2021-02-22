@@ -4,7 +4,8 @@
   <property name="gwt.args" value="-generateJsInteropExports" />
 
   <!-- Configure path to GWT SDK -->
-  <property name="gwt.sdk" location="/Users/lhernandez/kev/tools/gwt-2.9.0" />
+  <property environment="env"/>
+  <property name="gwt.sdk" location="${env.gwt}" />
 
   <path id="project.class.path">
     <pathelement location="war/WEB-INF/classes"/>
@@ -52,6 +53,8 @@
       </classpath>
       <arg line="-war"/>
       <arg value="war"/>
+      <!--arg value="-style"/>
+      <arg value="OBF"/-->
       <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
       <arg line="${gwt.args}"/>
       <arg value="com.lk.soccer.client.WebView"/>
