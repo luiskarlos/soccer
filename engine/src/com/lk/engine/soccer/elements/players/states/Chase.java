@@ -4,11 +4,15 @@
 package com.lk.engine.soccer.elements.players.states;
 
 import com.lk.engine.common.fsm.State;
+import com.lk.engine.common.fsm.StateAdapter;
 import com.lk.engine.common.fsm.StateMachine;
 import com.lk.engine.soccer.elements.players.Player;
 
-public class Chase implements State {
+public class Chase extends StateAdapter {
+	public static final String NAME = "Chase";
+	
 	public Chase() {
+		super(NAME);
 	}
 
 	@Override
@@ -18,7 +22,7 @@ public class Chase implements State {
 	}
 
 	@Override
-	public void execute(final StateMachine stateMachine, final Object data) {
+	public State.Status execute(final StateMachine stateMachine, final Object data) {
 		/*
 		 * final Player<?> player = owner.getOwner(); if
 		 * (player.ballWithinKickingRange()) {
@@ -29,6 +33,7 @@ public class Chase implements State {
 		 * 
 		 * owner.getFSM().changeTo(ReturnToHomeRegion.class);/*
 		 */
+		return State.Status.INTERRUPTIBLE;
 	}
 
 	@Override

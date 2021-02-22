@@ -3,7 +3,7 @@
  *          contains several field players and one goalkeeper. A SoccerTeam
  *          is implemented as a finite state machine and has states for
  *          attacking, defending, and KickOff.
- * 
+ *
  * @author Petr (http://www.sallyx.org/)
  */
 package com.lk.engine.soccer.elements.team;
@@ -17,61 +17,44 @@ import static java.lang.Math.abs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import com.google.gwt.core.client.GWT;
+import com.lk.engine.common.console.params.TeamParams;
 import com.lk.engine.common.core.BaseGameEntity;
+import com.lk.engine.common.core.Named;
 import com.lk.engine.common.core.Updatable;
+import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
+import com.lk.engine.common.debug.Debug;
+import com.lk.engine.common.debug.Debuggable;
 import com.lk.engine.common.fsm.StateMachine;
 import com.lk.engine.common.fsm.StateMachineOwner;
 import com.lk.engine.common.misc.Active;
-import com.lk.engine.common.misc.CppToJava.ObjectRef;
 import com.lk.engine.common.misc.RandomGenerator;
 import com.lk.engine.common.telegraph.Message;
 import com.lk.engine.common.telegraph.TelegramPackage;
 import com.lk.engine.common.telegraph.Telegraph;
-import com.lk.engine.soccer.console.params.TeamParams;
 import com.lk.engine.soccer.elements.Ball;
 import com.lk.engine.soccer.elements.FieldPlayingArea;
 import com.lk.engine.soccer.elements.Goal;
 import com.lk.engine.soccer.elements.coach.Coach;
 import com.lk.engine.soccer.elements.players.Player;
 import com.lk.engine.soccer.elements.players.fieldplayer.FieldPlayer;
+import com.lk.engine.soccer.elements.players.fieldplayer.states.Wait;
+import com.lk.engine.soccer.elements.players.goalkeeper.Goalkeeper;
+import com.lk.engine.soccer.elements.team.states.Defending;
 
-public class Team implements Updatable, StateMachineOwner {
+public class Team extends BaseGameEntity implements Updatable, StateMachineOwner, Debuggable, Named {
 	public enum TeamColor {
-		BLUE {
-			@Override
-			public int[] getAttackingRegions() {
-				return new int[] { 1, 12, 14, 6, 4 }; // TODO mover a configuracion
-			}
-
-			@Override
-			public int[] getDefendingRegions() {
-				return new int[] { 1, 6, 8, 3, 5 };
-			}
-
-		},
-		RED {
-			@Override
-			public int[] getAttackingRegions() {
-				return new int[] { 16, 3, 5, 9, 13 };
-			}
-
-			@Override
-			public int[] getDefendingRegions() {
-				return new int[] { 16, 9, 11, 12, 14 };
-			}
-		};
-
-		public abstract int[] getAttackingRegions();
-
-		public abstract int[] getDefendingRegions();
+		BLUE, RED
 	};
 
 	private final int id = BaseGameEntity.getNextValidID();
 	private StateMachine stateMachine;
 	private final TeamColor color;
 	private final List<Player<?>> players = new ArrayList<Player<?>>(5);
+	private Player<?> goalKeeper;
 	private final Goal goal;
 	private Team opponents;
 
@@ -106,6 +89,23 @@ public class Team implements Updatable, StateMachineOwner {
 	}
 
 	@Override
+  public void debug(Debug debug) {
+		debug.put("team", color.name());
+		debug.put("type", "Team");
+		debug.put("fsm", stateMachine);
+		debug.put("controllingPlayer", controllingPlayer);
+		debug.put("supportingPlayer", supportingPlayer);
+		debug.put("receivingPlayer", receivingPlayer);
+		debug.put("playerClosestToBall", playerClosestToBall);
+
+		debug.openArray("players");
+		for (Player<?> player : players) {
+	    debug.addToArray(player);
+    }
+		debug.closeArray();
+  }
+
+	@Override
 	public void setStateMachine(final StateMachine stateMachine) {
 		this.stateMachine = stateMachine;
 	}
@@ -123,29 +123,38 @@ public class Team implements Updatable, StateMachineOwner {
 		return playingArea;
 	}
 
-	public void setPlayers(final List<Player<?>> players) {
-		this.players.addAll(players);
-	}
-
 	public void addPlayer(final Player<?> player) {
 		players.add(player);
+    if (player instanceof Goalkeeper) {
+    	goalKeeper = player;
+    }
 	}
 
 	public void attack() {
-		changeMode(color().getAttackingRegions());
+		for (Player<?> player : players) {
+	    player.attack();
+    }
+  	updateTargetsOfWaitingPlayers();
 	}
 
 	public void defend() {
-		changeMode(color().getDefendingRegions());
+		for (Player<?> player : players) {
+	    player.defence();
+    }
+		updateTargetsOfWaitingPlayers();
 	}
 
-	private void changeMode(final int[] newRegions) {
-		setPlayersHomeRegion(newRegions);
-
-		// if a player is in either the Wait or ReturnToHomeRegion states, its
-		// steering target must be updated to that of its new home region to enable
-		// it to move into the correct position.
+	public void prepareForKickoff() {
+		for (Player<?> player : players) {
+	    player.gotoKickoff();
+    }
 		updateTargetsOfWaitingPlayers();
+  }
+
+	public void startPlaying() {
+		changeTo(Defending.NAME);
+		changeFieldPlayersTo(Wait.NAME);
+		//playerClosestToBall.changeTo(ChaseBall.NAME);
 	}
 
 	/**
@@ -176,7 +185,7 @@ public class Team implements Updatable, StateMachineOwner {
 	 * accessed info
 	 */
 	@Override
-	public Active update() {
+	public Active update(long time, int delta) { //TODO: update to consider delta
 		// this information is used frequently so it's more efficient to
 		// calculate it just once each frame
 		calculateClosestPlayerToBall();
@@ -184,7 +193,7 @@ public class Team implements Updatable, StateMachineOwner {
 		// the team state machine switches between attack/defense behavior. It
 		// also handles the 'kick off' state where a team must return to their
 		// kick off positions before the whistle is blown
-		stateMachine.update();
+		stateMachine.update(time, delta);
 
 		return Active.Yes;
 	}
@@ -196,16 +205,17 @@ public class Team implements Updatable, StateMachineOwner {
 	 * direction with the given power. If a possible shot is found, the function
 	 * will immediately return true, with the target position stored in the vector
 	 * ShotTarget.
-	 * 
+	 *
 	 * returns true if player has a clean shot at the goal and sets ShotTarget to
 	 * a normalized vector pointing in the direction the shot should be made. Else
 	 * returns false and sets heading to a zero vector
 	 */
-	public boolean canShoot(final Vector2D BallPos, final double power) {
-		return canShoot(BallPos, power, new Vector2D());
+	private final Vector2D trash = new Vector2D();
+	public boolean canShoot(final UVector2D ballPos, final double power) {
+		return canShoot(ballPos, power, trash);
 	}
 
-	public boolean canShoot(final Vector2D ballPos, final double power, final Vector2D shotTarget) {
+	public boolean canShoot(final UVector2D ballPos, final double power, final Vector2D shotTarget) {
 		// the number of randomly created shot targets this method will test
 		int numAttempts = params.getAttemptsToFindValidStrike();
 
@@ -216,8 +226,8 @@ public class Team implements Updatable, StateMachineOwner {
 
 			// the y value of the shot position should lay somewhere between two
 			// goalposts (taking into consideration the ball diameter)
-			final int minYVal = (int) (opponents.goal().leftPost().y + ball().bRadius());
-			final int maxYVal = (int) (opponents.goal().rightPost().y - ball().bRadius());
+			final int minYVal = (int) (opponents.goal().leftPost().y() + ball().bRadius());
+			final int maxYVal = (int) (opponents.goal().rightPost().y() - ball().bRadius());
 
 			shotTarget.y = random.randInt(minYVal, maxYVal);
 
@@ -242,15 +252,13 @@ public class Team implements Updatable, StateMachineOwner {
 	 * and the position the pass will be made to is returned in the reference
 	 * 'PassTarget'
 	 */
-	public boolean findPass(final Player<?> passer, final ObjectRef<Player<?>> receiver, final Vector2D passTarget,
+	public Player<?> findPass(final Player<?> passer, final Vector2D passTarget,
 	    final double power, final double MinPassingDistance) {
-		assert (receiver != null);
 		assert (passTarget != null);
 
 		double closestToGoalSoFar = Double.MAX_VALUE;
 		final Vector2D target = new Vector2D();
 
-		boolean finded = false;
 		// iterate through all this player's team members and calculate which
 		// one is in a position to be passed the ball
 		for (final Player<?> c : members()) {
@@ -260,21 +268,19 @@ public class Team implements Updatable, StateMachineOwner {
 				if (getBestPassToReceiver(passer, c, target, power)) {
 					// if the pass target is the closest to the opponent's goal line found
 					// so far, keep a record of it
-					final double dist2Goal = abs(target.x - opponents.goal().center().x);
+					final double dist2Goal = abs(target.x - opponents.goal().center().x());
 
 					if (dist2Goal < closestToGoalSoFar) {
 						closestToGoalSoFar = dist2Goal;
-						// keep a record of this player
-						receiver.set(c);
 						// and the target
 						passTarget.set(target);
-						finded = true;
+						return c;
 					}
 				}
 			}
 		}// next team member
 
-		return finded;
+		return null;
 	}
 
 	/**
@@ -312,8 +318,8 @@ public class Team implements Updatable, StateMachineOwner {
 
 		getTangentPoints(receiver.pos(), InterceptRange, ball().pos(), ip1, ip2);
 
-		final Vector2D Passes[] = { ip1, receiver.pos(), ip2 };
-		final int numPassesToTry = Passes.length;
+		final UVector2D passes[] = { ip1, receiver.pos(), ip2 };
+		final int numPassesToTry = passes.length;
 
 		// this pass is the best found so far if it is:
 		//
@@ -326,12 +332,12 @@ public class Team implements Updatable, StateMachineOwner {
 		boolean bResult = false;
 
 		for (int pass = 0; pass < numPassesToTry; ++pass) {
-			final double dist = abs(Passes[pass].x - opponents.goal().center().x);
+			final double dist = abs(passes[pass].x() - opponents.goal().center().x());
 
-			if ((dist < closestSoFar) && playingArea.getArea().inside(Passes[pass])
-			    && isPassSafeFromAllOpponents(ball().pos(), Passes[pass], receiver, power)) {
+			if ((dist < closestSoFar) && playingArea.getArea().inside(passes[pass])
+			    && isPassSafeFromAllOpponents(ball().pos(), passes[pass], receiver, power)) {
 				closestSoFar = dist;
-				passTarget.set(Passes[pass]);
+				passTarget.set(passes[pass]);
 				bResult = true;
 			}
 		}
@@ -343,7 +349,7 @@ public class Team implements Updatable, StateMachineOwner {
 	 * test if a pass from positions 'from' to 'target' kicked with force
 	 * 'PassingForce'can be intercepted by an opposing player
 	 */
-	public boolean isPassSafeFromOpponent(final Vector2D from, final Vector2D target, final Player<?> receiver,
+	public boolean isPassSafeFromOpponent(final UVector2D from, final UVector2D target, final Player<?> receiver,
 	    final Player<?> opp, final double PassingForce) {
 		// move the opponent into local space.
 		final Vector2D toTarget = sub(target, from);
@@ -387,7 +393,7 @@ public class Team implements Updatable, StateMachineOwner {
 	 * of the opposing team. Returns true if the pass can be made without getting
 	 * intercepted
 	 */
-	public boolean isPassSafeFromAllOpponents(final Vector2D from, final Vector2D target, final Player<?> receiver,
+	public boolean isPassSafeFromAllOpponents(final UVector2D from, final UVector2D target, final Player<?> receiver,
 	    final double passingForce) {
 		for (final Player<?> pb : opponents().members()) {
 			if (!isPassSafeFromOpponent(from, target, receiver, pb, passingForce)) {
@@ -403,7 +409,7 @@ public class Team implements Updatable, StateMachineOwner {
 	 * returns true if an opposing player is within the radius of the position
 	 * given as a par ameter
 	 */
-	public boolean isOpponentWithinRadius(final Vector2D pos, final double rad) {
+	public boolean isOpponentWithinRadius(final UVector2D pos, final double rad) {
 		for (final Player<?> pb : opponents().members()) {
 			if (vec2DDistanceSq(pos, pb.pos()) < rad * rad) {
 				return true;
@@ -490,8 +496,8 @@ public class Team implements Updatable, StateMachineOwner {
 		return distSqToBallOfClosestPlayer;
 	}
 
-	public Vector2D getSupportSpot() {
-		return new Vector2D(supportSpotCalc.getBestSupportingSpot());
+	public UVector2D getSupportSpot() {
+		return supportSpotCalc.getBestSupportingSpot();
 	}
 
 	public Player<?> supportingPlayer() {
@@ -513,6 +519,9 @@ public class Team implements Updatable, StateMachineOwner {
 	}
 
 	public Player<?> controllingPlayer() {
+		if (controllingPlayer == null)
+			return playerClosestToBall;
+
 		return controllingPlayer;
 	}
 
@@ -541,18 +550,6 @@ public class Team implements Updatable, StateMachineOwner {
 		return null;
 	}
 
-	public void setPlayersHomeRegion(final int[] newRegions) {
-		for (int plyr = 0; plyr < newRegions.length; ++plyr) {
-			setPlayerHomeRegion(plyr, newRegions[plyr]);
-		}
-	}
-
-	public void setPlayerHomeRegion(final int plyr, final int region) {
-		assert ((plyr >= 0) && (plyr < players.size()));
-
-		players.get(plyr).setHomeRegion(region);
-	}
-
 	public void determineBestSupportingPosition() {
 		supportSpotCalc.determineBestSupportingPosition();
 	}
@@ -576,7 +573,7 @@ public class Team implements Updatable, StateMachineOwner {
 	}
 
 	/**
-	 * @return Name of the team ("Red" or "Blue")
+	 * @return Named of the team ("Red" or "Blue")
 	 */
 	public String name() {
 		return color.name();
@@ -602,9 +599,26 @@ public class Team implements Updatable, StateMachineOwner {
 	public Coach getCoach() {
 		return coach;
 	}
-	
+
 	@Override
 	public String getName() {
-	  return "Team " + color;
+	  return name();
 	}
+
+	public void changeFieldPlayersTo(String name) {
+	  for (Player<?> player : players) {
+	  	if (player != goalKeeper) {
+	  		player.changeTo(name);
+	  	}
+    }
+  }
+
+	public void changeGoalKeeperTo(String name) {
+		goalKeeper.changeTo(name);
+  }
+
+	public void changeTo(String name) {
+	  getFSM().changeTo(name);
+  }
+
 }

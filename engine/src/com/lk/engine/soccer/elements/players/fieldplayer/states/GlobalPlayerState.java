@@ -4,19 +4,19 @@
 package com.lk.engine.soccer.elements.players.fieldplayer.states;
 
 import com.lk.engine.common.fsm.State;
+import com.lk.engine.common.fsm.StateAdapter;
 import com.lk.engine.common.fsm.StateMachine;
 import com.lk.engine.soccer.elements.players.Player;
 
-public class GlobalPlayerState implements State {
+public class GlobalPlayerState extends StateAdapter {
+	public static final String NAME = "GlobalPlayerState";
+	
 	public GlobalPlayerState() {
+		super(NAME);
 	}
 
 	@Override
-	public void enter(final StateMachine stateMachine) {
-	}
-
-	@Override
-	public void execute(final StateMachine stateMachine, final Object data) {
+	public State.Status execute(final StateMachine stateMachine, final Object data) {
 		final Player<?> player = stateMachine.getOwner();
 		// if a player is in possession and close to the ball reduce his max speed
 		if ((player.ballWithinReceivingRange()) && (player.isControllingPlayer())) {
@@ -24,9 +24,7 @@ public class GlobalPlayerState implements State {
 		} else {
 			player.setMaxSpeed(player.getParams().getMaxSpeedWithoutBall());
 		}
-	}
-
-	@Override
-	public void exit(final StateMachine stateMachine) {
+		
+		return State.Status.INTERRUPTIBLE;
 	}
 }

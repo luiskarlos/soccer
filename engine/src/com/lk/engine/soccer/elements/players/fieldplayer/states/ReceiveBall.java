@@ -7,6 +7,7 @@ import static java.lang.Math.abs;
 
 import com.lk.engine.common.d2.Vector2D;
 import com.lk.engine.common.fsm.State;
+import com.lk.engine.common.fsm.StateAdapter;
 import com.lk.engine.common.fsm.StateMachine;
 import com.lk.engine.common.misc.RandomGenerator;
 import com.lk.engine.common.telegraph.Message;
@@ -15,12 +16,15 @@ import com.lk.engine.common.telegraph.Telegraph;
 import com.lk.engine.soccer.elements.FieldPlayingArea;
 import com.lk.engine.soccer.elements.players.Player;
 
-public class ReceiveBall implements State {
+public class ReceiveBall extends StateAdapter {
+	public static final String NAME = "ReceiveBall";
+
 	private final Telegraph telegraph;
 	private final RandomGenerator random;
 	private final FieldPlayingArea playingArea;
 
 	public ReceiveBall(final Telegraph telegraph, final RandomGenerator random, final FieldPlayingArea playingArea) {
+		super(NAME);
 		this.telegraph = telegraph;
 		this.random = random;
 		this.playingArea = playingArea;
@@ -31,7 +35,7 @@ public class ReceiveBall implements State {
 	 *         area close to the opponent's goal
 	 */
 	public boolean inHotRegion(Player<?> player) {
-		return abs(player.pos().y - player.team().opponents().goal().center().y) < playingArea.getArea().length() / 3.0;
+		return abs(player.pos().y() - player.team().opponents().goal().center().y()) < playingArea.getArea().length() / 3.0;
 	}
 
 	@Override
@@ -41,7 +45,7 @@ public class ReceiveBall implements State {
 		player.team().setReceiver(player);
 
 		// this player is also now the controlling player
-		telegraph.post(new TelegramPackage(Message.CONTROLING_PLAYER, player));
+		telegraph.post(new TelegramPackage(Message.CONTROLLING_PLAYER, player));
 
 		// there are two types of receive behavior. One uses ARRIVE to direct
 		// the receiver to the position sent by the passer in its telegram. The
@@ -63,14 +67,8 @@ public class ReceiveBall implements State {
 	}
 
 	@Override
-	public void execute(final StateMachine stateMachine, final Object data) {
+	public State.Status execute(final StateMachine stateMachine, final Object data) {
 		final Player<?> player = stateMachine.getOwner();
-		// if the ball comes close enough to the player or if his team lose control
-		// he should change state to chase the ball
-		if (player.ballWithinReceivingRange() || !player.team().inControl()) {
-			stateMachine.changeTo(ChaseBall.class);
-			return;
-		}
 
 		if (player.steering().pursuitIsOn()) {
 			player.steering().setTarget(player.ball().pos());
@@ -84,6 +82,8 @@ public class ReceiveBall implements State {
 			player.trackBall();
 			player.setVelocity(new Vector2D(0, 0));
 		}
+
+		return State.Status.INTERRUPTIBLE;
 	}
 
 	@Override

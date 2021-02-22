@@ -7,7 +7,7 @@ import com.lk.engine.common.d2.Vector2D;
 import com.lk.engine.common.d2.Wall2D;
 
 public class FieldMarkLines {
-	private final List<Wall2D> lineMarks = new ArrayList<Wall2D>();
+	private final List<Wall2D> lineMarks = new ArrayList<Wall2D>(10);
 
 	public FieldMarkLines(FieldPlayingArea playingArea, Goal redGoal, Goal blueGoal) {
 		final Vector2D topLeft = new Vector2D(playingArea.getArea().left(), playingArea.getArea().top());

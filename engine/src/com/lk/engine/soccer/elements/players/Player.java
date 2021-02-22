@@ -1,40 +1,39 @@
-/**
- *  Desc: Definition of a soccer player base class. <del>The player inherits
- *        from the autolist class so that any player created will be 
- *        automatically added to a list that is easily accesible by any
- *        other game objects.</del> (mainly used by the steering behaviors and
- *        player state classes)
- * 
- * @author Petr (http://www.sallyx.org/)
- */
 package com.lk.engine.soccer.elements.players;
 
-import static com.lk.engine.common.d2.Vector2D.sub;
-import static com.lk.engine.common.d2.Vector2D.vec2DDistanceSq;
-import static com.lk.engine.common.d2.Vector2D.vec2DNormalize;
-import static com.lk.engine.common.telegraph.Message.GO_HOME;
-import static com.lk.engine.common.telegraph.Message.SUPPORT_ATTACKER;
-import static java.lang.Math.abs;
-
-import java.util.LinkedList;
-import java.util.List;
-
+import com.lk.engine.common.console.params.PlayerParams;
 import com.lk.engine.common.core.MovingEntity;
+import com.lk.engine.common.core.Named;
 import com.lk.engine.common.core.Region;
+import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
+import com.lk.engine.common.debug.Debug;
 import com.lk.engine.common.fsm.StateMachine;
+import com.lk.engine.common.fsm.StateMachineOwner;
 import com.lk.engine.common.telegraph.TelegramPackage;
 import com.lk.engine.common.telegraph.Telegraph;
-import com.lk.engine.soccer.console.params.PlayerParams;
 import com.lk.engine.soccer.elements.Ball;
 import com.lk.engine.soccer.elements.PlayRegions;
 import com.lk.engine.soccer.elements.Players;
 import com.lk.engine.soccer.elements.team.Team;
 
-abstract public class Player<T extends PlayerParams> extends MovingEntity<T> {
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import static com.lk.engine.common.d2.Vector2D.*;
+import static com.lk.engine.common.telegraph.Message.GO_HOME;
+import static com.lk.engine.common.telegraph.Message.SUPPORT_ATTACKER;
+import static java.lang.Math.abs;
+
+abstract public class Player<T extends PlayerParams>
+		extends MovingEntity<T>
+		implements StateMachineOwner, Named {
+
 	public enum PlayerRole {
 		GOALKEEPER, ATTACKER, DEFENDER
-	};
+	}
+
+	private StateMachine stateMachine;
 
 	// this player's role in the team
 	protected PlayerRole playerRole;
@@ -50,7 +49,7 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> {
 	// a lot so it's calculated once each time-step and stored here.
 	protected double distSqToBall = Double.MAX_VALUE;
 	// the vertex buffer
-	protected List<Vector2D> vecPlayerVB = new LinkedList<Vector2D>();
+	protected List<Vector2D> vecPlayerVB = new LinkedList<>();
 
 	protected final Telegraph telegraph;
 	protected final Players players;
@@ -65,26 +64,29 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> {
 		this.telegraph = telegraph;
 		this.team = team;
 		this.players = players;
-		this.homeRegion = homeRegion;
 		this.defaultRegion = homeRegion;
 		this.playerRole = role;
 		this.ball = ball;
 
 		// setup the vertex buffers and calculate the bounding radius
-		final Vector2D player[] = { new Vector2D(-3, 8), new Vector2D(3, 10), new Vector2D(3, -10), new Vector2D(-3, -8) };
-		final int numPlayerVerts = player.length;
+		final Vector2D[] player = {
+				new Vector2D(-3, 8),
+				new Vector2D(3, 10),
+				new Vector2D(3, -10),
+				new Vector2D(-3, -8)
+		};
 
-		for (int vtx = 0; vtx < numPlayerVerts; ++vtx) {
-			vecPlayerVB.add(player[vtx]);
+		for (Vector2D vector2D : player) {
+			vecPlayerVB.add(vector2D);
 
 			// set the bounding radius to the length of the
 			// greatest extent
-			if (abs(player[vtx].x) > boundingRadius) {
-				boundingRadius = abs(player[vtx].x);
+			if (abs(vector2D.x) > boundingRadius) {
+				boundingRadius = abs(vector2D.x);
 			}
 
-			if (abs(player[vtx].y) > boundingRadius) {
-				boundingRadius = abs(player[vtx].y);
+			if (abs(vector2D.y) > boundingRadius) {
+				boundingRadius = abs(vector2D.y);
 			}
 		}
 
@@ -96,8 +98,23 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> {
 	}
 
 	@Override
+  public void debug(Debug debug) {
+		debug.put("name", getName());
+		super.debug(debug);
+		debug.put("steering", steering);
+		debug.put("fsn", getFSM());
+  }
+
+	@Override
 	public String toString() {
 		return getParams().getName();
+	}
+
+	/**
+	 * @return true if the ball can be grabbed by the goalkeeper
+	 */
+	public boolean ballInPickupRange() {
+		return (vec2DDistanceSq(pos(), ball().pos()) < getParams().getBallPickupRangeSq());
 	}
 
 	/**
@@ -106,14 +123,13 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> {
 	public boolean isThreatened() {
 		// check against all opponents to make sure non are within this player's
 		// comfort zone
-		for (final Player<?> p : team().opponents().members()) {
-			// calculate distance to the player. if dist is less than our
-			// comfort zone, and the opponent is infront of the player, return true
-			if (positionInFrontOfPlayer(p.pos()) && (vec2DDistanceSq(pos(), p.pos()) < getParams().getComfortZone())) {
-				return true;
-			}
-		}
-		return false;
+		return team()
+				.opponents()
+				.members()
+				.stream()
+				.anyMatch(opponent ->
+						positionInFrontOfPlayer(opponent.pos()) &&
+						vec2DDistanceSq(pos(), opponent.pos()) < getParams().getComfortZone());
 	}
 
 	/**
@@ -140,6 +156,7 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> {
 			final Player<?> bestSupportPly = team().determineBestSupportingAttacker();
 			team().setSupportingPlayer(bestSupportPly);
 			telegraph.post(new TelegramPackage(0, Id(), team().supportingPlayer().Id(), SUPPORT_ATTACKER, null));
+			return;
 		}
 
 		final Player<?> bestSupportPly = team().determineBestSupportingAttacker();
@@ -180,12 +197,12 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return true if this player is ahead of the ATTACKER
 	 */
 	public boolean isAheadOfAttacker() {
-		return abs(pos().x - team().opponents().goal().center().x) < abs(team().controllingPlayer().pos().x
-		    - team().opponents().goal().center().x);
+		return abs(pos().x() - team().opponents().goal().center().x()) < abs(team().controllingPlayer().pos().x()
+		    - team().opponents().goal().center().x());
 	}
 
 	// returns true if a player is located at the designated support spot
@@ -209,7 +226,7 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> {
 	 * @return true if the point specified by 'position' is located in front of
 	 *         the player
 	 */
-	public boolean positionInFrontOfPlayer(final Vector2D position) {
+	public boolean positionInFrontOfPlayer(final UVector2D position) {
 		final Vector2D ToSubject = sub(position, pos());
 		return ToSubject.dot(heading()) > 0;
 	}
@@ -245,11 +262,11 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> {
 	 * methods
 	 */
 	public double distToOppGoal() {
-		return abs(pos().x - team().opponents().goal().center().x);
+		return abs(pos().x() - team().opponents().goal().center().x());
 	}
 
 	public double distToHomeGoal() {
-		return abs(pos().x - team().goal().center().x);
+		return abs(pos().x() - team().goal().center().x());
 	}
 
 	public void setDefaultHomeRegion() {
@@ -268,9 +285,18 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> {
 		return regions.get(homeRegion);
 	}
 
-	public void setHomeRegion(final int NewRegion) {
-		homeRegion = NewRegion;
+	public void attack() {
+		homeRegion = getParams().getAttackRegion();
 	}
+
+	public void gotoKickoff() {
+		homeRegion = getParams().getKickoffRegion();
+	}
+
+	public void defence() {
+		homeRegion = getParams().getDefenseRegion();
+	}
+
 
 	public Team team() {
 		return team;
@@ -294,11 +320,22 @@ abstract public class Player<T extends PlayerParams> extends MovingEntity<T> {
 		return vecPlayerVB;
 	}
 
-	public StateMachine getFSM() {
-		return null;
-	}
-	
 	public String getName() {
 		return getParams().getName();
 	}
+
+	@Override
+	public StateMachine getFSM() {
+		return stateMachine;
+	}
+
+	@Override
+	public void setStateMachine(StateMachine stateMachine) {
+		this.stateMachine = stateMachine;
+	}
+
+	public void changeTo(String name) {
+	  this.stateMachine.changeTo(name);
+  }
+
 }

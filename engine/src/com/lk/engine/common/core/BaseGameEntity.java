@@ -1,17 +1,26 @@
 /**
  * Desc: Base class to define a common interface for all game
  *       entities
- * 
+ *
  * @author Petr (http://www.sallyx.org/)
  */
 package com.lk.engine.common.core;
 
 import static com.lk.engine.common.misc.NumUtils.maxOf;
 
-import com.lk.engine.common.d2.Vector2D;
-import com.lk.engine.common.misc.Active;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public abstract class BaseGameEntity implements Updatable {
+import com.lk.engine.common.d2.UVector2D;
+import com.lk.engine.common.d2.Vector2D;
+import com.lk.engine.common.debug.Debug;
+import com.lk.engine.common.debug.Debuggable;
+import com.lk.engine.common.misc.Active;
+import jsinterop.annotations.JsMethod;
+import jsinterop.annotations.JsType;
+
+public abstract class BaseGameEntity implements Updatable, Debuggable {
 	public static final int DEFAULT_ENTITY_TYPE = -1;
 	// each entity has a unique ID
 	private int ID;
@@ -21,15 +30,20 @@ public abstract class BaseGameEntity implements Updatable {
 	private boolean tag;
 	// this is the next valid ID. Each time a BaseGameEntity is instantiated
 	// this value is updated
-	private static int nextValidID = 1;
+	private static int nextValidID = 2000; //reserve for fixed ids
+	//id = 0 to 6 for teams
+	//id = 10 to 600 for players
 
 	// its location in the environment
-	protected Vector2D position = new Vector2D();
+	protected final Vector2D position = new Vector2D();
+
 	protected Vector2D scale = new Vector2D(1.0, 1.0);
 	// the magnitude of this object's bounding radius
 	protected double boundingRadius;
 
-	public BaseGameEntity() {
+	private List<Slot> slots = Collections.emptyList();
+
+	protected BaseGameEntity() {
 		this(getNextValidID());
 	}
 
@@ -37,6 +51,11 @@ public abstract class BaseGameEntity implements Updatable {
 		setID(ID);
 	}
 
+	@Override
+  public void debug(Debug debug) {
+		debug.put("id", ID);
+		debug.put("position", position);
+  }
 	/**
 	 * this must be called within each constructor to make sure the ID is set
 	 * correctly. It verifies that the value passed to the method is greater or
@@ -44,20 +63,25 @@ public abstract class BaseGameEntity implements Updatable {
 	 * valid ID
 	 */
 	private void setID(final int val) {
-		// make sure the val is equal to or greater than the next available ID
-		// assert (val >= nextValidID) : "<BaseGameEntity::SetID>: invalid ID";
-
 		ID = val;
+	}
 
+	public void mount(int slot, BaseGameEntity entity) {
+		if (slots.isEmpty()) {
+			if (slots.equals(Collections.emptyList()))
+				slots = new ArrayList<BaseGameEntity.Slot>();
+
+			slots.add(new Slot());
+		}
+		slots.get(slot).setEntity(entity);
+	}
+
+	public void unmount(int slot) {
+		slots.get(slot).setEntity(null);
 	}
 
 	@Override
-	protected void finalize() throws Throwable {
-		super.finalize();
-	}
-
-	@Override
-	public Active update() {
+	public Active update(long time, int delta) {
 		return Active.No;
 	}
 
@@ -74,12 +98,16 @@ public abstract class BaseGameEntity implements Updatable {
 		nextValidID = 0;
 	}
 
-	public Vector2D pos() {
-		return new Vector2D(position);
+	@JsMethod
+	public UVector2D pos() {
+		return position;
 	}
 
-	public void setPos(final Vector2D new_pos) {
-		position = new Vector2D(new_pos);
+	public void setPos(final UVector2D new_pos) {
+		position.set(new_pos);
+		for (Slot slot : slots) {
+	    slot.updatePos();
+    }
 	}
 
 	public double bRadius() {
@@ -102,18 +130,19 @@ public abstract class BaseGameEntity implements Updatable {
 		tag = false;
 	}
 
-	public Vector2D scale() {
-		return new Vector2D(scale);
+	public UVector2D scale() {
+		return scale;
 	}
 
-	public void setScale(final Vector2D val) {
-		boundingRadius *= maxOf(val.x, val.y) / maxOf(scale.x, scale.y);
-		scale = new Vector2D(val);
+	public void setScale(final UVector2D val) {
+		boundingRadius *= maxOf(val.x(), val.y()) / maxOf(scale.x, scale.y);
+		scale.set(val);
 	}
 
 	public void setScale(final double val) {
 		boundingRadius *= (val / maxOf(scale.x, scale.y));
-		scale = new Vector2D(val, val);
+		scale.x = val;
+		scale.y = val;
 	}
 
 	public int entityType() {
@@ -126,5 +155,20 @@ public abstract class BaseGameEntity implements Updatable {
 
 	public int Id() {
 		return ID;
+	}
+
+	private class Slot {
+		private Vector2D relative = new Vector2D(5, 5);
+		private BaseGameEntity entity = null;
+
+		private void setEntity(BaseGameEntity entity) {
+			this.entity = entity;
+		}
+
+		public void updatePos() {
+			if (entity != null) {
+				entity.setPos(Vector2D.add(position, relative));
+			}
+		}
 	}
 }

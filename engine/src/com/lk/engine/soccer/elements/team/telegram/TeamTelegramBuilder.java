@@ -15,6 +15,6 @@ public class TeamTelegramBuilder implements TelegramCheckin {
 	@Override
 	public void checkin(final Telegraph dispatcher) {
 		dispatcher.checkin(Message.NEW_PLAYER, new NewPlayerHandler(team.getFSM()));
-		dispatcher.checkin(Message.CONTROLING_PLAYER, new ControllingPlayerHandler(team.getFSM()));
+		dispatcher.checkin(Message.CONTROLLING_PLAYER, new ControllingPlayerHandler(team.getFSM()));
 	}
 }

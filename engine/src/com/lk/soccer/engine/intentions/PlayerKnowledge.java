@@ -9,9 +9,10 @@ import static java.lang.Math.abs;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.lk.engine.common.console.params.PlayerParams;
+import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
 import com.lk.engine.common.misc.RandomGenerator;
-import com.lk.engine.soccer.console.params.PlayerParams;
 import com.lk.engine.soccer.elements.Ball;
 import com.lk.engine.soccer.elements.Goal;
 import com.lk.engine.soccer.elements.players.Player;
@@ -68,7 +69,7 @@ public class PlayerKnowledge {
 		return canShoot(me.pos(), shootPower, new Vector2D());
 	}
 
-	private boolean canShoot(final Vector2D ballPos, final double power, final Vector2D shotTarget) {
+	private boolean canShoot(final UVector2D ballPos, final double power, final Vector2D shotTarget) {
 		// the number of randomly created shot targets this method will test
 		int numAttempts = params.getAttemptsToFindValidStrike();
 
@@ -80,8 +81,8 @@ public class PlayerKnowledge {
 			// the y value of the shot position should lay somewhere between two
 
 			// goalposts (taking into consideration the ball diameter)
-			final int minYVal = (int) (goal.leftPost().y + ball.bRadius());
-			final int maxYVal = (int) (goal.rightPost().y - ball.bRadius());
+			final int minYVal = (int) (goal.leftPost().y() + ball.bRadius());
+			final int maxYVal = (int) (goal.rightPost().y() - ball.bRadius());
 
 			shotTarget.y = random.randInt(minYVal, maxYVal);
 
@@ -104,7 +105,7 @@ public class PlayerKnowledge {
 	 * of the opposing team. Returns true if the pass can be made without getting
 	 * intercepted
 	 */
-	public boolean isPassSafeFromAllOpponents(final Vector2D from, final Vector2D target, final Player<?> receiver,
+	public boolean isPassSafeFromAllOpponents(final UVector2D from, final UVector2D target, final Player<?> receiver,
 	    final double passingForce) {
 		for (final Player<?> pb : opponents) {
 			if (!isPassSafeFromOpponent(from, target, receiver, pb, passingForce)) {
@@ -118,7 +119,7 @@ public class PlayerKnowledge {
 	 * test if a pass from positions 'from' to 'target' kicked with force
 	 * 'PassingForce'can be intercepted by an opposing player
 	 */
-	public boolean isPassSafeFromOpponent(final Vector2D from, final Vector2D target, final Player<?> receiver,
+	public boolean isPassSafeFromOpponent(final UVector2D from, final UVector2D target, final Player<?> receiver,
 	    final Player<?> opp, final double passingForce) {
 		// move the opponent into local space.
 		final Vector2D toTarget = sub(target, from);

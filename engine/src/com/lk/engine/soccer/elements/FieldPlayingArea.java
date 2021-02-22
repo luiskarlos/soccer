@@ -1,7 +1,7 @@
 package com.lk.engine.soccer.elements;
 
+import com.lk.engine.common.console.params.SoccerPitchParams;
 import com.lk.engine.common.core.Region;
-import com.lk.engine.soccer.console.params.SoccerPitchParams;
 
 public class FieldPlayingArea {
 	private final int x;

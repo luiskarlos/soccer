@@ -1,7 +1,7 @@
 /**
- * 
+ *
  *  Desc:   class to encapsulate steering behaviors for a soccer player
- * 
+ *
  * @author Petr (http://www.sallyx.org/)
  */
 package com.lk.engine.soccer.elements.players;
@@ -14,13 +14,17 @@ import static com.lk.engine.common.d2.Vector2D.vec2DNormalize;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.lk.engine.common.core.EntityFunctionTemplates;
+import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
+import com.lk.engine.common.debug.Debug;
+import com.lk.engine.common.debug.Debuggable;
 import com.lk.engine.soccer.elements.Ball;
 import com.lk.engine.soccer.elements.Players;
 
-public class SteeringBehaviors {
+public class SteeringBehaviors implements Debuggable {
 	private final Player<?> player;
 	private final Ball ball;
 	private final Set<Behavior> behaviors = new HashSet<Behavior>();
@@ -32,6 +36,16 @@ public class SteeringBehaviors {
 	private final Vector2D target = new Vector2D();
 	// the distance the player tries to INTERPOSE from the target
 	private double interposeDist;
+
+	@Override
+	public void debug(Debug debug) {
+		debug.put("behaviors",
+				behaviors
+						.stream()
+						.map(behavior -> behavior.name())
+						.collect(Collectors.joining(", "))
+		);
+	}
 
 	private enum Behavior {
 		SEEK() {
@@ -168,7 +182,7 @@ public class SteeringBehaviors {
 	}
 
 	/**
-	 * 
+	 *
 	 * this calculates a force repelling from the other neighbors
 	 */
 	protected Vector2D separation() {
@@ -190,22 +204,22 @@ public class SteeringBehaviors {
 	}
 
 	private Vector2D interpose() {
-		return interpose(ball, target, interposeDist);
+		return interpose(ball.pos(), target, interposeDist);
 	}
 
 	/**
 	 * Given an opponent and an object position this method returns a force that
 	 * attempts to position the agent between them
 	 */
-	private Vector2D interpose(final Ball ball, final Vector2D target, final double DistFromTarget) {
-		return arrive(add(target, mul(vec2DNormalize(sub(ball.pos(), target)), DistFromTarget)), Deceleration.NORMAL);
+	private Vector2D interpose(final UVector2D objectPos, final Vector2D target, final double distFromTarget) {
+		return arrive(add(target, mul(vec2DNormalize(sub(objectPos, target)), distFromTarget)), Deceleration.NORMAL);
 	}
 
 	/**
 	 * tags any vehicles within a predefined radius
 	 */
 	private Set<Player<?>> findNeighbour() {
-		final Set<Player<?>> tagged = new HashSet<Player<?>>();
+		final Set<Player<?>> tagged = new HashSet<>();
 		for (final Player<?> p : players.getPlayers()) {
 			// work in distance squared to avoid sqrts
 			// final Vector2D to = sub(player.pos(), p.pos());
@@ -278,7 +292,7 @@ public class SteeringBehaviors {
 	 * calculates the overall steering force based on the currently active
 	 * steering behaviors.
 	 */
-	public Vector2D calculate() {
+	public UVector2D calculate() {
 		// reset the force
 		steeringForce.zero();
 
@@ -288,7 +302,7 @@ public class SteeringBehaviors {
 		// make sure the force doesn't exceed the vehicles maximum allowable
 		steeringForce.truncate(player.maxForce());
 
-		return new Vector2D(steeringForce);
+		return steeringForce;
 	}
 
 	/**
@@ -311,11 +325,11 @@ public class SteeringBehaviors {
 		return steeringForce;
 	}
 
-	public Vector2D target() {
-		return new Vector2D(target);
+	public UVector2D target() {
+		return target;
 	}
 
-	public void setTarget(final Vector2D t) {
+	public void setTarget(final UVector2D t) {
 		target.set(t);
 	}
 

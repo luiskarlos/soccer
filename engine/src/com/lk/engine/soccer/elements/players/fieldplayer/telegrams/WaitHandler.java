@@ -14,7 +14,7 @@ public class WaitHandler implements TelegramHandler {
 
 	@Override
 	public Processed handle(final Telegram telegram) {
-		stateMachine.changeTo(Wait.class);
+		stateMachine.changeTo(Wait.NAME);
 		return Processed.YES;
 	}
 }

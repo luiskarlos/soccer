@@ -2,9 +2,9 @@ package com.lk.engine.soccer;
 
 import com.lk.engine.soccer.elements.Ball;
 import com.lk.engine.soccer.elements.PlayRegions;
-import com.lk.engine.soccer.elements.Referee;
 import com.lk.engine.soccer.elements.players.fieldplayer.FieldPlayer;
 import com.lk.engine.soccer.elements.players.goalkeeper.Goalkeeper;
+import com.lk.engine.soccer.elements.referee.Referee;
 import com.lk.engine.soccer.elements.team.Team;
 
 public interface GameBuilderListener {

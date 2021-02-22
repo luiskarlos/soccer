@@ -3,11 +3,15 @@
 package com.lk.engine.soccer.elements.team.states;
 
 import com.lk.engine.common.fsm.State;
+import com.lk.engine.common.fsm.StateAdapter;
 import com.lk.engine.common.fsm.StateMachine;
 import com.lk.engine.soccer.elements.team.Team;
 
-public class Defending implements State {
+public class Defending extends StateAdapter {
+	public static final String NAME = "Defending";
+	
 	public Defending() {
+		super(NAME);
 	}
 
 	@Override
@@ -17,16 +21,14 @@ public class Defending implements State {
 	}
 
 	@Override
-	public void execute(final StateMachine stateMachine, final Object data) {
+	public State.Status execute(final StateMachine stateMachine, final Object data) {
 		final Team team = stateMachine.getOwner();
 		// if in control change states
 		if (team.inControl()) {
-			stateMachine.changeTo(Attacking.class);
-			return;
+			stateMachine.changeTo(Attacking.NAME);
 		}
+		
+		return State.Status.INTERRUPTIBLE;
 	}
 
-	@Override
-	public void exit(final StateMachine stateMachine) {
-	}
 }

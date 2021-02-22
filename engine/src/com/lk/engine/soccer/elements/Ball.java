@@ -2,7 +2,7 @@
  *  Desc: Class to implement a soccer ball. This class inherits from
  *        MovingEntity and provides further functionality for collision
  *        testing and position prediction.
- * 
+ *
  * @author Petr (http://www.sallyx.org/)
  */
 package com.lk.engine.soccer.elements;
@@ -23,24 +23,35 @@ import static java.lang.Math.sqrt;
 
 import java.util.List;
 
+import com.lk.engine.common.console.params.BallParams;
 import com.lk.engine.common.core.MovingEntity;
+import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
 import com.lk.engine.common.d2.Wall2D;
+import com.lk.engine.common.debug.Debug;
+import com.lk.engine.common.debug.Debuggable;
 import com.lk.engine.common.misc.Active;
 import com.lk.engine.common.misc.RandomGenerator;
-import com.lk.engine.soccer.console.params.BallParams;
 import com.lk.engine.soccer.elements.players.Player;
 
-public class Ball extends MovingEntity<BallParams> {
+public class Ball extends MovingEntity<BallParams> implements Debuggable {
 	// keeps a record of the ball's position at the last update
-	private Vector2D oldPos;
+	private final Vector2D oldPos;
 	// a local reference to the Walls that make up the pitch boundary
 	private final FieldMarkLines markLines;
 	private final RandomGenerator random;
 
-	public Ball(final BallParams params, final Vector2D pos, final FieldMarkLines markLines, RandomGenerator random) {
+	@Override
+  public void debug(Debug debug) {
+		super.debug(debug);
+		debug.put("oldPos", oldPos);
+		debug.put("type", "Ball");
+  }
+
+	public Ball(final BallParams params, final UVector2D pos, final FieldMarkLines markLines, RandomGenerator random) {
 		// set up the base class
 		super(params, pos, new Vector2D(0, 1), new Vector2D(1.0, 1.0));
+		this.oldPos = new Vector2D(pos);
 		this.random = random;
 		this.markLines = markLines;
 	}
@@ -121,11 +132,12 @@ public class Ball extends MovingEntity<BallParams> {
 	 * updates the ball physics, tests for any collisions and adjusts the ball's
 	 * velocity accordingly
 	 */
+
 	@Override
-	public Active update() {
+	public Active update(long time, int delta) { //TODO: update to consider delta
 		// keep a record of the old position so the goal::scored method
 		// can utilize it for goal testing
-		oldPos = new Vector2D(position);
+		oldPos.set(pos()); //TODO: this is update even if the pos did not change
 
 		// Test for collisions
 		testCollisionWithWalls(markLines.getLineMarks());
@@ -135,7 +147,7 @@ public class Ball extends MovingEntity<BallParams> {
 			velocity.add(mul(vec2DNormalize(velocity), getParams().getFriction()));
 			position.add(velocity);
 			// update heading
-			heading = vec2DNormalize(velocity);
+			heading.set(vec2DNormalize(velocity));
 		}
 
 		return Active.Yes;
@@ -145,22 +157,24 @@ public class Ball extends MovingEntity<BallParams> {
 	 * applys a force to the ball in the direction of heading. Truncates the new
 	 * velocity to make sure it doesn't exceed the max allowable.
 	 */
-	public void kick(final Vector2D direction, final double force) {
+	public void kick(final UVector2D dir, final double force) {
 		// ensure direction is normalized
-		direction.normalize();
+		final Vector2D normalDir = new Vector2D(dir);
+		normalDir.normalize();
 
 		// calculate the acceleration
-		final Vector2D acceleration = div(mul(direction, force), getParams().getMass());
+		final Vector2D acceleration = div(mul(normalDir, force), getParams().getMass());
 
 		// update the velocity
-		velocity = acceleration;
+		velocity.set(acceleration);
 	}
 
 	/**
 	 * Given a force and a distance to cover given by two vectors, this method
 	 * calculates how long it will take the ball to travel between the two points
+	 * TODO: check not used parameters?
 	 */
-	public double timeToCoverDistance(final Vector2D A, final Vector2D B, final double force) {
+	public double timeToCoverDistance(final UVector2D A, final UVector2D B, final double force) {
 		// this will be the velocity of the ball in the next time step *if*
 		// the player was to make the pass.
 		final double speed = force / getParams().getMass();
@@ -223,8 +237,8 @@ public class Ball extends MovingEntity<BallParams> {
 		velocity.zero();
 	}
 
-	public Vector2D oldPos() {
-		return new Vector2D(oldPos);
+	public UVector2D oldPos() {
+		return oldPos;
 	}
 
 	/**
@@ -232,8 +246,8 @@ public class Ball extends MovingEntity<BallParams> {
 	 * zero
 	 */
 	public void placeAtPosition(final Vector2D newPos) {
-		position = new Vector2D(newPos);
-		oldPos = new Vector2D(position);
+		oldPos.set(pos());
+		setPos(newPos);
 		velocity.zero();
 	}
 
@@ -242,11 +256,13 @@ public class Ball extends MovingEntity<BallParams> {
 	 * prior to kicking the ball using the ball's position and the ball target as
 	 * parameters.
 	 */
-	public Vector2D addNoiseToKick(final Player<?> player, final Vector2D ballPos, final Vector2D target) {
+	public Vector2D addNoiseToKick(final Player<?> player, final UVector2D ballPos, final UVector2D target) {
 		final double displacement = (Math.PI - Math.PI * player.getParams().getKickingAccuracy()) * random.randomClamped();
 		final Vector2D toTarget = sub(target, ballPos);
 		vec2DRotateAroundOrigin(toTarget, displacement);
 
 		return add(toTarget, ballPos);
 	}
+
+
 }

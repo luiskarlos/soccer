@@ -7,5 +7,6 @@
 
   <source path='common'/>
   <source path='soccer'/>
+  <public path="soccer/js"/>
 
 </module>

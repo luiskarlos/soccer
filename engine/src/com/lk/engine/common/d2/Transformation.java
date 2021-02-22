@@ -20,19 +20,19 @@ public class Transformation {
 	// given a std::vector of 2D vectors, a position, orientation and scale,
 	// this function transforms the 2D vectors into the object's world space
 	// ------------------------------------------------------------------------
-	public static List<Vector2D> worldTransform(final List<Vector2D> points, final Vector2D pos, final Vector2D forward,
-	    final Vector2D side, final Vector2D scale) {
+	public static List<Vector2D> worldTransform(final List<Vector2D> points, final UVector2D pos, final UVector2D forward,
+	    final UVector2D side, final UVector2D scale) {
 		// create a transformation matrix
 		final C2DMatrix matTransform = new C2DMatrix();
 
 		// scale
-		if ((scale.x != 1.0) || (scale.y != 1.0)) {
-			matTransform.scale(scale.x, scale.y);
+		if ((scale.x() != 1.0) || (scale.y() != 1.0)) {
+			matTransform.scale(scale.x(), scale.y());
 		}
 		// rotate
 		matTransform.rotate(forward, side);
 		// and translate
-		matTransform.translate(pos.x, pos.y);
+		matTransform.translate(pos.x(), pos.y());
 
 		// copy the original vertices into the buffer about to be transformed
 		final List<Vector2D> tranVector2Ds = CppToJava.clone(points);
@@ -110,8 +110,8 @@ public class Transformation {
 	// --------------------- PointToLocalSpace --------------------------------
 	//
 	// ------------------------------------------------------------------------
-	public static Vector2D pointToLocalSpace(final Vector2D point, final Vector2D AgentHeading, final Vector2D AgentSide,
-	    final Vector2D AgentPosition) {
+	public static Vector2D pointToLocalSpace(final UVector2D point, final UVector2D AgentHeading, final UVector2D AgentSide,
+	    final UVector2D AgentPosition) {
 		// create a transformation matrix
 		final C2DMatrix matTransform = new C2DMatrix();
 
@@ -119,10 +119,10 @@ public class Transformation {
 		final double Ty = -AgentPosition.dot(AgentSide);
 
 		// create the transformation matrix
-		matTransform._11(AgentHeading.x);
-		matTransform._12(AgentSide.x);
-		matTransform._21(AgentHeading.y);
-		matTransform._22(AgentSide.y);
+		matTransform._11(AgentHeading.x());
+		matTransform._12(AgentSide.x());
+		matTransform._21(AgentHeading.y());
+		matTransform._22(AgentSide.y());
 		matTransform._31(Tx);
 		matTransform._32(Ty);
 

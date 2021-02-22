@@ -3,6 +3,7 @@
  */
 package com.lk.engine.common.time;
 
+@Deprecated() //Use update time and delta
 public class FrameCounter {
 	private long count = 0;
 	private int framesElapsed = 0;

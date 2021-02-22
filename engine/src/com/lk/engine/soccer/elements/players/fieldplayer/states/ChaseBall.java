@@ -4,14 +4,38 @@
 package com.lk.engine.soccer.elements.players.fieldplayer.states;
 
 import com.lk.engine.common.fsm.State;
+import com.lk.engine.common.fsm.StateAdapter;
 import com.lk.engine.common.fsm.StateMachine;
 import com.lk.engine.soccer.elements.players.Player;
 import com.lk.engine.soccer.elements.players.fieldplayer.FieldPlayer;
+import com.lk.engine.soccer.elements.referee.Referee;
 
-public class ChaseBall implements State {
-	public ChaseBall() {
+public class ChaseBall extends StateAdapter {
+	public static final String NAME = "ChaseBall";
+	
+	private final Referee referee;
+
+	public ChaseBall(final Referee referee) {
+		super(NAME);
+		this.referee = referee;
 	}
 
+	@Override
+	public Check check(final StateMachine stateMachine) {  	
+  	if (referee.gameOn()) {
+			// if the ball is nearer this player than any other team member AND
+			// there is not an assigned receiver AND neither goalkeeper has
+			// the ball, go chase it
+  		final FieldPlayer player = stateMachine.getOwner();
+			if (!referee.goalKeeperHasBall() &&
+					(player.team().receiver() == player || 
+					 (player.team().receiver() == null && player.isClosestTeamMemberToBall()))) {
+				return Check.APPLY;
+			}
+		}
+  	return Check.NO;
+  }
+	
 	@Override
 	public void enter(final StateMachine stateMachine) {
 		final FieldPlayer player = stateMachine.getOwner();
@@ -19,19 +43,13 @@ public class ChaseBall implements State {
 	}
 
 	@Override
-	public void execute(final StateMachine stateMachine, final Object data) {
+	public State.Status execute(final StateMachine stateMachine, final Object data) {
 		final Player<?> player = stateMachine.getOwner();
-		if (player.canKickball()) {
-			stateMachine.changeTo(KickBall.class);
-			return;
-		}
-
 		if (player.isClosestTeamMemberToBall()) {
 			player.steering().setTarget(player.ball().pos());
-			return;
+			return State.Status.NO_INTERRUPTIBLE;
 		}
-
-		stateMachine.changeTo(ReturnToHomeRegion.class);
+		return State.Status.INTERRUPTIBLE;
 	}
 
 	@Override

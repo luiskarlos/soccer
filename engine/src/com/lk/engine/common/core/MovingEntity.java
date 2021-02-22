@@ -10,36 +10,48 @@ package com.lk.engine.common.core;
 import static com.lk.engine.common.d2.Vector2D.sub;
 import static com.lk.engine.common.d2.Vector2D.vec2DNormalize;
 
+import com.lk.engine.common.console.params.MovingEntityParams;
 import com.lk.engine.common.d2.C2DMatrix;
+import com.lk.engine.common.d2.UVector2D;
 import com.lk.engine.common.d2.Vector2D;
-import com.lk.engine.soccer.console.params.MovingEntityParams;
+import com.lk.engine.common.debug.Debug;
+import com.lk.engine.common.debug.Debuggable;
+import jsinterop.annotations.JsType;
 
-public abstract class MovingEntity<T extends MovingEntityParams> extends BaseGameEntity {
-	protected Vector2D velocity;
+@JsType
+public abstract class MovingEntity<T extends MovingEntityParams> extends BaseGameEntity implements Debuggable {
+	protected final Vector2D velocity;
 	// a normalized vector pointing in the direction the entity is heading.
-	protected Vector2D heading;
+	protected final Vector2D heading;
 	// a vector perpendicular to the heading vector
 	protected Vector2D side;
 	private T params;
 
-	public MovingEntity(final T params, final Vector2D position, final Vector2D velocity, final Vector2D heading) {
+	public MovingEntity(final T params, final UVector2D position, final UVector2D velocity, final UVector2D heading) {
 		super(BaseGameEntity.getNextValidID());
 		this.heading = new Vector2D(heading);
 		this.velocity = new Vector2D(velocity);
 		this.side = this.heading.perp();
-		super.position = new Vector2D(position);
+		super.setPos(position);
 		this.params = params;
 		this.boundingRadius = params.getRadius();
-		// this.scale = new Vector2D(scale);
 	}
 
+	@Override
+  public void debug(Debug debug) {
+		super.debug(debug);
+		debug.put("velocity", velocity);
+		debug.put("heading", heading);
+		debug.put("side", side);
+  }
+	
 	// accessors
-	public Vector2D velocity() {
-		return new Vector2D(velocity);
+	public UVector2D velocity() {
+		return velocity;
 	}
 
-	public void setVelocity(final Vector2D NewVel) {
-		velocity = NewVel;
+	public void setVelocity(final UVector2D newVel) {
+		velocity.set(newVel);
 	}
 
 	public double mass() {
@@ -78,7 +90,7 @@ public abstract class MovingEntity<T extends MovingEntityParams> extends BaseGam
 		return velocity.lengthSq();
 	}
 
-	public Vector2D heading() {
+	public UVector2D heading() {
 		return heading;
 	}
 
@@ -97,8 +109,8 @@ public abstract class MovingEntity<T extends MovingEntityParams> extends BaseGam
 	 * 
 	 * @return true when the heading is facing in the desired direction
 	 */
-	public boolean rotateHeadingToFacePosition(final Vector2D target) {
-		final Vector2D toTarget = vec2DNormalize(sub(target, position));
+	public boolean rotateHeadingToFacePosition(final UVector2D target) {
+		final Vector2D toTarget = vec2DNormalize(sub(target, pos()));
 
 		// first determine the angle between the heading vector and the target
 		double angle = Math.acos(heading.dot(toTarget));
@@ -138,10 +150,10 @@ public abstract class MovingEntity<T extends MovingEntityParams> extends BaseGam
 	 * new heading is valid this fumction sets the entity's heading and side
 	 * vectors accordingly
 	 */
-	public void setHeading(final Vector2D new_heading) {
+	public void setHeading(final UVector2D new_heading) {
 		assert ((new_heading.lengthSq() - 1.0) < 0.00001);
 
-		heading = new_heading;
+		heading.set(new_heading);
 
 		// the side vector must always be perpendicular to the heading
 		side = heading.perp();
