@@ -45,6 +45,11 @@ public class WebView implements EntryPoint {
 		GWT.setUncaughtExceptionHandler(e -> logger.log(Level.SEVERE, e.getMessage(), e));
 		game.setListener(jsListener);
 		//loadScript(0,"webview/spawn-players.js");
+
+		registerEngine(); // quick fix for the demo
+		addConsole();
+		game.start();
+
 	}
 
 	private void loadScript(final int pos, final String ... lib) {
@@ -60,9 +65,6 @@ public class WebView implements EntryPoint {
               if (pos+1 < lib.length) {
                 loadScript(pos+1, lib);
               } else {
-                registerEngine();
-                addConsole();
-                game.start();
               }
 
               logger.log(Level.SEVERE, "Loaded /js/" + lib[pos]);
